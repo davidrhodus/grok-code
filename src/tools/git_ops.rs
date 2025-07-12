@@ -446,6 +446,7 @@ mod tests {
             dry_run: false,
             no_confirm: true,
             git_repo: None,
+            tui_mode: false,
         }
     }
 

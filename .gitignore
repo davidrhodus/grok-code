@@ -71,3 +71,4 @@ KNOWN_ISSUES.md
 # Additional temporary demo scripts
 demo.sh
 showcase-*.sh
+test-tui-improvements.sh

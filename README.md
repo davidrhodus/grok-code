@@ -115,11 +115,11 @@ export API_MAX_RETRIES="5"     # Maximum API retry attempts (default: 3)
 ### Basic Usage
 
 ```bash
-# Interactive mode (default)
+# Interactive mode with TUI (default)
 grok-code
 
-# TUI mode for better visualization
-grok-code --tui
+# Standard terminal mode (disable TUI)
+grok-code --no-tui
 
 # Non-interactive mode
 grok-code prompt -p "Add error handling to the main function"
@@ -134,17 +134,14 @@ grok-code --auto-run prompt -p "Run all tests and fix any issues"
 grok-code check
 ```
 
-### TUI Mode 🖥️
+### TUI Mode 🖥️ (Default)
 
-NEW: Terminal User Interface mode provides a better visualization for chat conversations:
-
-```bash
-grok-code --tui
-```
+Grok Code now uses a Terminal User Interface by default for better visualization and interaction:
 
 **TUI Features:**
 - Rich terminal interface using ratatui
 - Better visualization of chat messages with color coding
+- Real-time display of tool execution and results
 - Keyboard navigation:
   - `i` - Enter input mode to type messages
   - `s` - Enter scroll mode to navigate history
@@ -152,8 +149,13 @@ grok-code --tui
   - `Enter` - Send message (in input mode)
   - `Esc` - Exit current mode
   - `Ctrl-C` - Quit TUI
-- Code diff visualization (coming soon)
+- Stays active during command processing (no more terminal output spillage!)
 - Real-time updates and progress indicators
+
+To use the standard terminal interface instead:
+```bash
+grok-code --no-tui
+```
 
 ### Command-Line Options
 
@@ -168,7 +170,7 @@ Options:
   --no-confirm           Skip confirmation prompts
   --auto-run             Automatically run commands without confirmation (alias for --no-confirm)
   -v, --verbose          Enable verbose output (detailed logs)
-  --tui                  Enable TUI mode for better visualization
+  --no-tui               Disable TUI mode and use standard terminal interface
   -h, --help             Print help
 
 Commands:

@@ -11,6 +11,7 @@ mod tests {
             dry_run: false,
             no_confirm: true, // Auto-confirm for tests
             git_repo: None,
+            tui_mode: false,
         }
     }
     

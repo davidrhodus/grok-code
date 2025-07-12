@@ -78,3 +78,8 @@ pub mod tui;
 
 /// Backup management with retention
 pub mod backup;
+
+// Re-export commonly used types
+pub use agent::{GrokAgent, TuiUpdate};
+pub use api::{ApiClient, ApiConfig, Message};
+pub use error::{GrokError, Result};

@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use colored::Colorize;
+use colored::*;
 use grok_code::agent::GrokAgent;
 use grok_code::api::{ApiConfig, Message};
 use grok_code::keystore::KeyStore;
@@ -50,8 +50,8 @@ struct Cli {
     #[arg(short, long, help = "Enable verbose output (show detailed logs)")]
     verbose: bool,
 
-    #[arg(long, help = "Enable TUI mode for better visualization")]
-    tui: bool,
+    #[arg(long, help = "Disable TUI mode and use standard terminal interface")]
+    no_tui: bool,
 }
 
 #[derive(Subcommand)]
@@ -98,7 +98,7 @@ enum KeyCommands {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     let project_root = match std::env::current_dir() {
@@ -198,7 +198,7 @@ async fn main() {
                 }
             }
         }
-        return;
+        return Ok(());
     }
 
     let keystore = KeyStore::new();
@@ -497,7 +497,7 @@ async fn main() {
             "💡".blue(),
             "grok-code".green().bold()
         );
-        return;
+        return Ok(());
     }
 
     match provider_name {
@@ -520,6 +520,7 @@ async fn main() {
     println!(
         "Type 'exit' to quit. Use 'grok-code prompt -p \"Your prompt\"' for non-interactive mode."
     );
+    println!("Use --no-tui flag to disable the TUI interface.");
 
     // Create API configuration
     let provider = provider_name;
@@ -592,10 +593,8 @@ async fn main() {
             agent.process_prompt(&auto_prompt, false).await;
         }
         None => {
-            if cli.tui {
-                // Run in TUI mode
-                println!("🖥️  Starting TUI mode...");
-
+            if !cli.no_tui {
+                // Run in TUI mode (default)
                 // Initialize terminal
                 let mut terminal = match init_terminal() {
                     Ok(term) => term,
@@ -630,19 +629,24 @@ async fn main() {
                                 tool_call_id: None,
                             });
 
-                            // Process the prompt
-                            let _response = agent.process_prompt(&input, true).await;
+                            // Mark as processing
+                            tui_app.set_processing(true);
+                            terminal.draw(|f| tui_app.draw(f))?;
 
-                            // Add assistant response to TUI
-                            // TODO: Properly capture the assistant's response and tool calls
-                            tui_app.add_message(&Message {
-                                role: "assistant".to_string(),
-                                content: Some(
-                                    "Response processed. Check terminal for details.".to_string(),
-                                ),
-                                tool_calls: None,
-                                tool_call_id: None,
-                            });
+                            // Create channel for agent updates
+                            let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+                            
+                            // Set up TUI to receive updates
+                            tui_app.set_update_receiver(rx);
+                            
+                            // Set up agent to send updates
+                            agent.set_tui_sender(tx);
+
+                            // Process the prompt - agent will send updates through channel
+                            agent.process_prompt(&input, true).await;
+                            
+                            // Clear the TUI sender so agent doesn't send updates when not in TUI
+                            agent.set_tui_sender(tokio::sync::mpsc::unbounded_channel().0);
                         }
                         Ok(None) => {
                             // User quit TUI
@@ -681,6 +685,7 @@ async fn main() {
             }
         }
     }
+    Ok(())
 }
 
 #[cfg(test)]

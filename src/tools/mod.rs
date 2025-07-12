@@ -104,6 +104,7 @@ pub struct ToolContext<'a> {
     pub dry_run: bool,
     pub no_confirm: bool,
     pub git_repo: Option<&'a git2::Repository>,
+    pub tui_mode: bool,
 }
 
 impl ToolContext<'_> {
@@ -122,7 +123,7 @@ impl ToolContext<'_> {
     pub fn confirm_action(&self, action: &str) -> bool {
         use std::io::{self, IsTerminal, Write};
 
-        if self.no_confirm || self.dry_run {
+        if self.no_confirm || self.dry_run || self.tui_mode {
             return true;
         }
 
