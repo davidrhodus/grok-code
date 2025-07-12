@@ -113,8 +113,7 @@ pub fn create_client(provider: &str, config: ApiConfig) -> Result<Box<dyn ApiCli
         "openai" => Ok(Box::new(openai::OpenAiClient::new(config))),
         "anthropic" => Ok(Box::new(anthropic::AnthropicClient::new(config))),
         _ => Err(GrokError::Config(format!(
-            "Unknown API provider: {}",
-            provider
+            "Unknown API provider: {provider}"
         ))),
     }
 }

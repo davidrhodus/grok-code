@@ -34,15 +34,15 @@ impl Tool for RunShellCommand {
         // Sanitize the command
         let command = match sanitize_shell_command(command) {
             Ok(cmd) => cmd,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
-        if !context.confirm_action(&format!("run command '{}'", command)) {
+        if !context.confirm_action(&format!("run command '{command}'")) {
             return "Command not confirmed.".to_string();
         }
 
         if context.dry_run {
-            return format!("Dry-run: Would execute command: {}", command);
+            return format!("Dry-run: Would execute command: {command}");
         }
 
         let output = Command::new("sh")
@@ -91,7 +91,7 @@ impl Tool for RunShellCommand {
                 std::io::ErrorKind::PermissionDenied => {
                     "Error: Permission denied executing shell command".to_string()
                 }
-                _ => format!("Error running command: {}", e),
+                _ => format!("Error running command: {e}"),
             },
         }
     }

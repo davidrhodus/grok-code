@@ -19,11 +19,11 @@ impl KeyStore {
     /// Store an API key securely
     pub fn set_api_key(&self, provider: &str, api_key: &str) -> Result<()> {
         let entry = Entry::new(&self.service, provider)
-            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {e}")))?;
 
         entry
             .set_password(api_key)
-            .map_err(|e| GrokError::Config(format!("Failed to store API key: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to store API key: {e}")))?;
 
         Ok(())
     }
@@ -31,21 +31,21 @@ impl KeyStore {
     /// Retrieve an API key from secure storage
     pub fn get_api_key(&self, provider: &str) -> Result<String> {
         let entry = Entry::new(&self.service, provider)
-            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {e}")))?;
 
         entry
             .get_password()
-            .map_err(|e| GrokError::Config(format!("API key not found in keyring: {}", e)))
+            .map_err(|e| GrokError::Config(format!("API key not found in keyring: {e}")))
     }
 
     /// Delete an API key from secure storage
     pub fn delete_api_key(&self, provider: &str) -> Result<()> {
         let entry = Entry::new(&self.service, provider)
-            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to create keyring entry: {e}")))?;
 
         entry
             .delete_password()
-            .map_err(|e| GrokError::Config(format!("Failed to delete API key: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to delete API key: {e}")))?;
 
         Ok(())
     }

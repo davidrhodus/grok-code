@@ -54,12 +54,12 @@ impl Tool for SearchCodebase {
         if is_regex {
             let validated_pattern = match sanitize_regex_pattern(query) {
                 Ok(p) => p,
-                Err(e) => return format!("Error: {}", e),
+                Err(e) => return format!("Error: {e}"),
             };
 
             let re = match Regex::new(&validated_pattern) {
                 Ok(re) => re,
-                Err(e) => return format!("Invalid regex: {}", e),
+                Err(e) => return format!("Invalid regex: {e}"),
             };
 
             for e in WalkDir::new(&context.project_root).into_iter().flatten() {

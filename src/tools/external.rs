@@ -29,15 +29,12 @@ impl Tool for WebSearch {
     fn execute(&self, args: &JsonValue, _context: &ToolContext<'_>) -> String {
         let query = args["query"].as_str().unwrap_or("");
         let encoded_query = encode(query);
-        let url = format!(
-            "https://api.duckduckgo.com/?q={}&format=json",
-            encoded_query
-        );
+        let url = format!("https://api.duckduckgo.com/?q={encoded_query}&format=json");
 
         // TODO: Implement actual HTTP request to DuckDuckGo API
         // TODO: Parse JSON response and format search results
         // TODO: Add timeout and retry logic for external API calls
-        format!("Would search for: {} at {}", query, url)
+        format!("Would search for: {query} at {url}")
     }
 }
 
@@ -91,7 +88,7 @@ impl Tool for CreateJiraTicket {
             return "Dry-run: Would create Jira ticket.".to_string();
         }
 
-        let url = format!("{}/rest/api/3/issue", jira_url);
+        let url = format!("{jira_url}/rest/api/3/issue");
         let _ticket_body = json!({
             "fields": {
                 "project": {"key": project},
@@ -102,15 +99,12 @@ impl Tool for CreateJiraTicket {
         });
 
         let jira_email = env::var("JIRA_EMAIL").unwrap_or_else(|_| "user@email.com".to_string());
-        let _auth = general_purpose::STANDARD.encode(format!("{}:{}", jira_email, api_key));
+        let _auth = general_purpose::STANDARD.encode(format!("{jira_email}:{api_key}"));
 
         // TODO: Implement actual HTTP request to Jira API
         // TODO: Add proper error handling for API failures
         // TODO: Parse response and return ticket ID/URL
         // TODO: Support custom issue types and fields
-        format!(
-            "Would create Jira ticket at {} with summary: {}",
-            url, summary
-        )
+        format!("Would create Jira ticket at {url} with summary: {summary}")
     }
 }

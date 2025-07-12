@@ -85,8 +85,7 @@ pub fn sanitize_shell_command(command: &str) -> Result<String, String> {
     for (pattern, description) in &dangerous_patterns {
         if command.contains(pattern) {
             return Err(format!(
-                "Dangerous command pattern detected: {} - {}",
-                pattern, description
+                "Dangerous command pattern detected: {pattern} - {description}"
             ));
         }
     }
@@ -110,8 +109,7 @@ pub fn sanitize_shell_command(command: &str) -> Result<String, String> {
             for (pattern, description) in &dangerous_patterns {
                 if part.contains(pattern) {
                     return Err(format!(
-                        "Dangerous pattern in command chain: {} - {}",
-                        pattern, description
+                        "Dangerous pattern in command chain: {pattern} - {description}"
                     ));
                 }
             }
@@ -139,7 +137,7 @@ pub fn sanitize_git_branch_name(name: &str) -> Result<String, String> {
     let invalid_chars = vec![" ", "~", "^", ":", "?", "*", "[", "\\", "..", "@{"];
     for invalid in invalid_chars {
         if name.contains(invalid) {
-            return Err(format!("Branch name cannot contain '{}'", invalid));
+            return Err(format!("Branch name cannot contain '{invalid}'"));
         }
     }
 
@@ -183,8 +181,7 @@ pub fn sanitize_commit_message(message: &str) -> Result<String, String> {
     const MAX_COMMIT_MESSAGE_LENGTH: usize = 1000;
     if message.len() > MAX_COMMIT_MESSAGE_LENGTH {
         return Err(format!(
-            "Commit message too long (max {} characters)",
-            MAX_COMMIT_MESSAGE_LENGTH
+            "Commit message too long (max {MAX_COMMIT_MESSAGE_LENGTH} characters)"
         ));
     }
 
@@ -196,7 +193,7 @@ pub fn sanitize_regex_pattern(pattern: &str) -> Result<String, String> {
     // Try to compile the regex to ensure it's valid
     match Regex::new(pattern) {
         Ok(_) => Ok(pattern.to_string()),
-        Err(e) => Err(format!("Invalid regex pattern: {}", e)),
+        Err(e) => Err(format!("Invalid regex pattern: {e}")),
     }
 }
 

@@ -37,7 +37,7 @@ impl ApiClient for OpenAiClient {
 
         // Debug logging for API requests
         if std::env::var("DEBUG_API").is_ok() {
-            eprintln!("DEBUG: Sending API request to {}", url);
+            eprintln!("DEBUG: Sending API request to {url}");
             eprintln!("  Model: {}", request.model);
             eprintln!("  Messages count: {}", request.messages.len());
             eprintln!(
@@ -69,10 +69,7 @@ impl ApiClient for OpenAiClient {
             if status.as_u16() == 429 {
                 return Err(GrokError::rate_limited(text, Some(60)));
             }
-            return Err(GrokError::ApiError(format!(
-                "API error {}: {}",
-                status, text
-            )));
+            return Err(GrokError::ApiError(format!("API error {status}: {text}")));
         }
 
         let json_response = response.json::<ChatCompletionResponse>().await?;

@@ -69,13 +69,9 @@ async fn test_deeply_nested_project() {
 
     // Create a deeply nested structure
     for i in 0..10 {
-        current_path = current_path.join(format!("level{}", i));
+        current_path = current_path.join(format!("level{i}"));
         fs::create_dir(&current_path).unwrap();
-        fs::write(
-            current_path.join("file.txt"),
-            format!("Level {} content", i),
-        )
-        .unwrap();
+        fs::write(current_path.join("file.txt"), format!("Level {i} content")).unwrap();
     }
 
     let summary = GrokAgent::generate_codebase_summary(temp_dir.path(), 5);

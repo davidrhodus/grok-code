@@ -186,14 +186,14 @@ async fn main() {
                 }
             }
             KeyCommands::Delete { provider } => match keystore.delete_api_key(provider) {
-                Ok(_) => println!("✅ API key for {} removed from secure storage.", provider),
-                Err(e) => eprintln!("❌ Failed to delete API key: {}", e),
+                Ok(_) => println!("✅ API key for {provider} removed from secure storage."),
+                Err(e) => eprintln!("❌ Failed to delete API key: {e}"),
             },
             KeyCommands::List => {
                 println!("Stored API key providers:");
                 for provider in ["xai", "openai", "anthropic"] {
                     if keystore.has_api_key(provider) {
-                        println!("  ✅ {}", provider);
+                        println!("  ✅ {provider}");
                     }
                 }
             }
@@ -328,13 +328,10 @@ async fn main() {
             "xai" => "xAI",
             _ => provider_name,
         };
-        println!("Using {} API at {}", display_name, base_url);
-        println!("Model: {}", model);
+        println!("Using {display_name} API at {base_url}");
+        println!("Model: {model}");
         if provider_name == "xai" && model != "grok-4-0709" {
-            println!(
-                "⚠️  Note: You're using model '{}' but xAI typically uses 'grok-4-0709'",
-                model
-            );
+            println!("⚠️  Note: You're using model '{model}' but xAI typically uses 'grok-4-0709'");
         }
         println!(
             "API key: {}...{}",
@@ -455,7 +452,7 @@ async fn main() {
             "  API_TIMEOUT_SECS: {}",
             env::var("API_TIMEOUT_SECS")
                 .map(|v| v.cyan().to_string())
-                .unwrap_or_else(|_| format!("Not set (default: {})", default_timeout)
+                .unwrap_or_else(|_| format!("Not set (default: {default_timeout})")
                     .dimmed()
                     .to_string())
         );
@@ -559,14 +556,14 @@ async fn main() {
     ) {
         Ok(agent) => agent,
         Err(e) => {
-            eprintln!("❌ Failed to create agent: {}", e);
+            eprintln!("❌ Failed to create agent: {e}");
             std::process::exit(1);
         }
     };
 
     if cli.summarize {
         if let Err(e) = agent.enhance_summary().await {
-            println!("Failed to enhance summary: {}", e);
+            println!("Failed to enhance summary: {e}");
         }
     }
 
@@ -591,7 +588,7 @@ async fn main() {
             agent.process_prompt(&user_prompt, false).await;
         }
         Some(Commands::Automate { prompt }) => {
-            let auto_prompt = format!("Automate task: {}", prompt);
+            let auto_prompt = format!("Automate task: {prompt}");
             agent.process_prompt(&auto_prompt, false).await;
         }
         None => {
@@ -603,7 +600,7 @@ async fn main() {
                 let mut terminal = match init_terminal() {
                     Ok(term) => term,
                     Err(e) => {
-                        eprintln!("❌ Failed to initialize TUI: {}", e);
+                        eprintln!("❌ Failed to initialize TUI: {e}");
                         std::process::exit(1);
                     }
                 };
@@ -615,8 +612,7 @@ async fn main() {
                 tui_app.add_message(&Message {
                     role: "system".to_string(),
                     content: Some(format!(
-                        "Welcome to Grok Code TUI mode! Using {} API.",
-                        provider_name
+                        "Welcome to Grok Code TUI mode! Using {provider_name} API."
                     )),
                     tool_calls: None,
                     tool_call_id: None,
@@ -653,7 +649,7 @@ async fn main() {
                             break;
                         }
                         Err(e) => {
-                            eprintln!("TUI error: {}", e);
+                            eprintln!("TUI error: {e}");
                             break;
                         }
                     }
@@ -661,7 +657,7 @@ async fn main() {
 
                 // Restore terminal
                 if let Err(e) = restore_terminal(&mut terminal) {
-                    eprintln!("Failed to restore terminal: {}", e);
+                    eprintln!("Failed to restore terminal: {e}");
                 }
 
                 println!("Goodbye!");

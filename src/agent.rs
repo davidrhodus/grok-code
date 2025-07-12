@@ -212,7 +212,7 @@ impl GrokAgent {
                 tokio::select! {
                     _ = tokio::time::sleep(tokio::time::Duration::from_secs(15)) => {
                         elapsed_shown += 15;
-                        print!(" ({}s)", elapsed_shown);
+                        print!(" ({elapsed_shown}s)");
                         io::stdout().flush().unwrap();
                     }
                     _ = &mut rx => {
@@ -386,7 +386,7 @@ impl GrokAgent {
                         println!(); // Clear the thinking dots
                         eprintln!("\n❌ Something went wrong. Please try again.");
                         if std::env::var("DEBUG_API").is_ok() {
-                            eprintln!("DEBUG: {}", error_msg);
+                            eprintln!("DEBUG: {error_msg}");
                         }
                         return;
                     }
@@ -415,7 +415,7 @@ impl GrokAgent {
 
             if let Some(content) = &message.content {
                 if !content.is_empty() && content.trim() != "" {
-                    println!("💬 {}", content);
+                    println!("💬 {content}");
                     self.messages.push(message.clone());
                     if !interactive {
                         break;
@@ -433,7 +433,7 @@ impl GrokAgent {
                 // Execute tools concurrently when possible
                 let num_tools = tool_calls.len();
                 if num_tools > 1 {
-                    println!("🔄 Executing {} tools concurrently...", num_tools);
+                    println!("🔄 Executing {num_tools} tools concurrently...");
                 }
 
                 // Prepare tool information
@@ -468,7 +468,7 @@ impl GrokAgent {
                             "debug_code" => "Debugging code",
                             _ => "Executing tool",
                         };
-                        println!("{} {}...", icon, action_text);
+                        println!("{icon} {action_text}...");
                     } else {
                         println!("  [{}] {} {}", idx + 1, icon, tool_name);
                     }
@@ -537,7 +537,7 @@ impl GrokAgent {
                                     0,
                                     String::new(),
                                     String::new(),
-                                    format!("Error executing tool: {}", e),
+                                    format!("Error executing tool: {e}"),
                                 ));
                             }
                         }
@@ -580,37 +580,37 @@ impl GrokAgent {
                                     lines.len()
                                 );
                                 for line in lines.iter().take(10) {
-                                    println!("{}  - {}", prefix, line);
+                                    println!("{prefix}  - {line}");
                                 }
                                 println!("{}  ... and {} more", prefix, lines.len() - 10);
                             } else {
                                 println!("{}✓ Found {} files:", prefix, lines.len());
                                 for line in &lines {
-                                    println!("{}  - {}", prefix, line);
+                                    println!("{prefix}  - {line}");
                                 }
                             }
                         }
                         "read_file" | "search_codebase" => {
                             let lines = tool_result.lines().count();
                             if lines > 5 {
-                                println!("{}✓ Success ({} lines of output)", prefix, lines);
+                                println!("{prefix}✓ Success ({lines} lines of output)");
                             } else {
-                                println!("{}✓ {}", prefix, tool_result);
+                                println!("{prefix}✓ {tool_result}");
                             }
                         }
                         "run_shell_command" | "run_lint" => {
                             if tool_result.contains("error") || tool_result.contains("Error") {
                                 // Don't alarm user about internal errors
-                                println!("{}✓ Done", prefix);
+                                println!("{prefix}✓ Done");
                             } else {
-                                println!("{}✓ Command completed successfully", prefix);
+                                println!("{prefix}✓ Command completed successfully");
                             }
                         }
                         _ => {
                             if tool_result.len() > 200 {
                                 println!("{}✓ Done (output: {} chars)", prefix, tool_result.len());
                             } else {
-                                println!("{}✓ {}", prefix, tool_result);
+                                println!("{prefix}✓ {tool_result}");
                             }
                         }
                     }

@@ -129,7 +129,7 @@ impl ToolContext<'_> {
         // Check if stdin is piped/non-interactive
         if !io::stdin().is_terminal() {
             println!(); // New line for clarity
-            println!("⚠️  Non-interactive mode: auto-confirming {} ", action);
+            println!("⚠️  Non-interactive mode: auto-confirming {action} ");
             return true;
         }
 
@@ -137,7 +137,7 @@ impl ToolContext<'_> {
         let _lock = STDIN_MUTEX.lock().unwrap();
 
         println!(); // New line for clarity
-        print!("❓ Confirm {}? (y/n): ", action);
+        print!("❓ Confirm {action}? (y/n): ");
         let _ = io::stdout().flush();
         let mut input = String::new();
         match io::stdin().read_line(&mut input) {
@@ -191,12 +191,12 @@ impl ToolRegistry {
                 Ok(plugin_tools) => {
                     let count = plugin_tools.len();
                     if count > 0 {
-                        println!("✅ Loaded {} plugin tools", count);
+                        println!("✅ Loaded {count} plugin tools");
                     }
                     tools.extend(plugin_tools);
                 }
                 Err(e) => {
-                    eprintln!("⚠️  Failed to load plugins: {}", e);
+                    eprintln!("⚠️  Failed to load plugins: {e}");
                 }
             }
         }
@@ -267,7 +267,7 @@ impl ToolRegistry {
 
         let args: JsonValue = match serde_json::from_str(args_str) {
             Ok(v) => v,
-            Err(e) => return format!("Invalid arguments: {}", e),
+            Err(e) => return format!("Invalid arguments: {e}"),
         };
 
         match self.find_tool(name) {
@@ -280,11 +280,11 @@ impl ToolRegistry {
                     let elapsed = start.elapsed();
                     let elapsed_ms = elapsed.as_secs_f64() * 1000.0;
                     let elapsed_str = if elapsed_ms < 100.0 {
-                        format!("{:.2}ms", elapsed_ms).green()
+                        format!("{elapsed_ms:.2}ms").green()
                     } else if elapsed_ms < 1000.0 {
-                        format!("{:.2}ms", elapsed_ms).yellow()
+                        format!("{elapsed_ms:.2}ms").yellow()
                     } else {
-                        format!("{:.2}ms", elapsed_ms).red()
+                        format!("{elapsed_ms:.2}ms").red()
                     };
                     eprintln!(
                         "{}: Tool '{}' executed in {}",

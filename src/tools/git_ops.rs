@@ -33,7 +33,7 @@ impl Tool for CreateCommit {
         let message = match args["message"].as_str() {
             Some(msg) => match sanitize_commit_message(msg) {
                 Ok(m) => m,
-                Err(e) => return format!("Error: {}", e),
+                Err(e) => return format!("Error: {e}"),
             },
             None => return "Error: 'message' parameter is required".to_string(),
         };
@@ -49,43 +49,43 @@ impl Tool for CreateCommit {
 
             let mut index = match repo.index() {
                 Ok(i) => i,
-                Err(e) => return format!("Error: {}", e),
+                Err(e) => return format!("Error: {e}"),
             };
 
             if let Err(e) = index.add_all(["."].iter(), IndexAddOption::DEFAULT, None) {
-                return format!("Error staging: {}", e);
+                return format!("Error staging: {e}");
             }
 
             if let Err(e) = index.write() {
-                return format!("Error writing index: {}", e);
+                return format!("Error writing index: {e}");
             }
 
             let tree_id = match index.write_tree() {
                 Ok(id) => id,
-                Err(e) => return format!("Error writing tree: {}", e),
+                Err(e) => return format!("Error writing tree: {e}"),
             };
 
             let tree = match repo.find_tree(tree_id) {
                 Ok(t) => t,
-                Err(e) => return format!("Error finding tree: {}", e),
+                Err(e) => return format!("Error finding tree: {e}"),
             };
 
             let parent = match repo.head() {
                 Ok(head) => match head.peel_to_commit() {
                     Ok(c) => c,
-                    Err(e) => return format!("Error: {}", e),
+                    Err(e) => return format!("Error: {e}"),
                 },
                 Err(_) => return "No parent commit.".to_string(),
             };
 
             let sig = match Signature::now("Grok Code", "grok@code.com") {
                 Ok(s) => s,
-                Err(e) => return format!("Error creating git signature: {}", e),
+                Err(e) => return format!("Error creating git signature: {e}"),
             };
 
             match repo.commit(Some("HEAD"), &sig, &sig, &message, &tree, &[&parent]) {
                 Ok(_) => "Commit successful.".to_string(),
-                Err(e) => format!("Error committing: {}", e),
+                Err(e) => format!("Error committing: {e}"),
             }
         } else {
             "No git repo found.".to_string()
@@ -161,7 +161,7 @@ impl Tool for SubmitPR {
             return "Dry-run: Would submit PR.".to_string();
         }
 
-        let url = format!("https://api.github.com/repos/{}/pulls", repo_str);
+        let url = format!("https://api.github.com/repos/{repo_str}/pulls");
         let _pr_body = json!({
             "title": title,
             "body": body,
@@ -173,7 +173,7 @@ impl Tool for SubmitPR {
         // TODO: Handle authentication properly
         // TODO: Support draft PRs and PR templates
         // TODO: Add support for reviewers and labels
-        format!("Would submit PR to {} with title: {}", url, title)
+        format!("Would submit PR to {url} with title: {title}")
     }
 }
 
@@ -214,7 +214,7 @@ impl Tool for ResolveMergeConflict {
 
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
         if !context.confirm_action(&format!(
@@ -256,7 +256,7 @@ impl Tool for ResolveMergeConflict {
                         conflict_count,
                         path.display()
                     );
-                    preview.push_str(&format!("Would resolve using '{}' strategy:\n\n", strategy));
+                    preview.push_str(&format!("Would resolve using '{strategy}' strategy:\n\n"));
 
                     for (i, conflict) in conflicts.iter().enumerate() {
                         preview.push_str(&format!(
@@ -292,8 +292,7 @@ impl Tool for ResolveMergeConflict {
                         "auto" => auto_resolve_conflict(conflict).0,
                         _ => {
                             return format!(
-                                "Unknown strategy '{}'. Use 'ours', 'theirs', 'both', or 'auto'.",
-                                strategy
+                                "Unknown strategy '{strategy}'. Use 'ours', 'theirs', 'both', or 'auto'."
                             );
                         }
                     };
@@ -305,7 +304,7 @@ impl Tool for ResolveMergeConflict {
                 let backup_manager = BackupManager::new(None);
                 let backup_path = match backup_manager.create_backup(&path) {
                     Ok(path) => path,
-                    Err(e) => return format!("Error creating backup: {}", e),
+                    Err(e) => return format!("Error creating backup: {e}"),
                 };
 
                 match fs::write(&path, resolved_content) {
@@ -313,10 +312,10 @@ impl Tool for ResolveMergeConflict {
                         format!("Successfully resolved {} conflict(s) using '{}' strategy. Original backed up to {}", 
                                 conflict_count, strategy, backup_path.display())
                     }
-                    Err(e) => format!("Error writing resolved file: {}", e),
+                    Err(e) => format!("Error writing resolved file: {e}"),
                 }
             }
-            Err(e) => format!("Error reading file: {}", e),
+            Err(e) => format!("Error reading file: {e}"),
         }
     }
 }

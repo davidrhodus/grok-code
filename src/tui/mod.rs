@@ -271,14 +271,13 @@ impl TuiApp {
 
                 // Content
                 for line in msg.content.lines() {
-                    items.push(ListItem::new(format!("  {}", line)));
+                    items.push(ListItem::new(format!("  {line}")));
                 }
 
                 // Tool calls
                 for tool in &msg.tool_calls {
                     items.push(
-                        ListItem::new(format!("  {}", tool))
-                            .style(Style::default().fg(Color::Cyan)),
+                        ListItem::new(format!("  {tool}")).style(Style::default().fg(Color::Cyan)),
                     );
                 }
 
@@ -398,7 +397,7 @@ pub async fn run_tui_demo() -> Result<(), Box<dyn Error>> {
     restore_terminal(&mut terminal)?;
 
     if let Ok(Some(input)) = result {
-        println!("User input: {}", input);
+        println!("User input: {input}");
     }
 
     Ok(())

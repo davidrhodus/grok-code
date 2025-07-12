@@ -18,7 +18,7 @@ fn test_keystore_basic_operations() {
             // Test retrieving the key
             match keystore.get_api_key(test_provider) {
                 Ok(retrieved_key) => assert_eq!(retrieved_key, test_key),
-                Err(e) => panic!("Failed to retrieve key: {}", e),
+                Err(e) => panic!("Failed to retrieve key: {e}"),
             }
 
             // Test that key exists
@@ -30,15 +30,12 @@ fn test_keystore_basic_operations() {
                     // Test that key no longer exists
                     assert!(!keystore.has_api_key(test_provider));
                 }
-                Err(e) => panic!("Failed to delete key: {}", e),
+                Err(e) => panic!("Failed to delete key: {e}"),
             }
         }
         Err(e) => {
             // Keyring might not be available in CI environment
-            eprintln!(
-                "Warning: Keystore test skipped - keyring not available: {}",
-                e
-            );
+            eprintln!("Warning: Keystore test skipped - keyring not available: {e}");
         }
     }
 }
@@ -63,7 +60,7 @@ fn test_keystore_multiple_providers() {
     for (provider, key) in &providers {
         match keystore.set_api_key(provider, key) {
             Ok(_) => stored_count += 1,
-            Err(e) => eprintln!("Warning: Could not store key for {}: {}", provider, e),
+            Err(e) => eprintln!("Warning: Could not store key for {provider}: {e}"),
         }
     }
 
@@ -73,7 +70,7 @@ fn test_keystore_multiple_providers() {
             if keystore.has_api_key(provider) {
                 match keystore.get_api_key(provider) {
                     Ok(key) => assert_eq!(key, *expected_key),
-                    Err(e) => panic!("Failed to retrieve key for {}: {}", provider, e),
+                    Err(e) => panic!("Failed to retrieve key for {provider}: {e}"),
                 }
             }
         }

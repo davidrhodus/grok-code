@@ -63,7 +63,7 @@ impl BackupManager {
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
 
-        let backup_name = format!("{}.{}.bak", file_name, timestamp);
+        let backup_name = format!("{file_name}.{timestamp}.bak");
 
         // Place backup in same directory as original file
         let mut backup_path = file_path.to_path_buf();
@@ -98,7 +98,7 @@ impl BackupManager {
 
             // Check if this is a backup file for our original file
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                if name.starts_with(&format!("{}.", file_name)) && name.ends_with(".bak") {
+                if name.starts_with(&format!("{file_name}.")) && name.ends_with(".bak") {
                     // Check file age
                     if let Ok(metadata) = entry.metadata() {
                         if let Ok(modified) = metadata.modified() {
@@ -153,7 +153,7 @@ impl BackupManager {
 
             // Check if this is a backup file for our original file
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                if name.starts_with(&format!("{}.", file_name)) && name.ends_with(".bak") {
+                if name.starts_with(&format!("{file_name}.")) && name.ends_with(".bak") {
                     // Extract timestamp from filename
                     if let Ok(metadata) = entry.metadata() {
                         if let Ok(modified) = metadata.modified() {

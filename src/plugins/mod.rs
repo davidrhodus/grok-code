@@ -199,7 +199,7 @@ impl PluginLoader {
     /// Load plugins from a configuration file
     pub fn load_from_file(&mut self, path: &PathBuf) -> Result<usize> {
         let content = std::fs::read_to_string(path)
-            .map_err(|e| GrokError::Config(format!("Failed to read plugin config: {}", e)))?;
+            .map_err(|e| GrokError::Config(format!("Failed to read plugin config: {e}")))?;
 
         let extension = path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
 
@@ -211,7 +211,7 @@ impl PluginLoader {
                 } else {
                     // Fall back to parsing as direct array
                     toml::from_str(&content)
-                        .map_err(|e| GrokError::Config(format!("Failed to parse TOML: {}", e)))?
+                        .map_err(|e| GrokError::Config(format!("Failed to parse TOML: {e}")))?
                 }
             }
             "json" => {
@@ -221,7 +221,7 @@ impl PluginLoader {
                 } else {
                     // Fall back to parsing as direct array
                     serde_json::from_str(&content)
-                        .map_err(|e| GrokError::Config(format!("Failed to parse JSON: {}", e)))?
+                        .map_err(|e| GrokError::Config(format!("Failed to parse JSON: {e}")))?
                 }
             }
             _ => {

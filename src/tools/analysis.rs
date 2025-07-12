@@ -42,13 +42,10 @@ impl Tool for DebugCode {
             // TODO: Implement a way to call other tools from within a tool
             // TODO: Add smarter error pattern recognition (stack traces, common errors)
             // TODO: Integrate with language-specific error databases
-            results.push_str(&format!("Search for '{}' in codebase\n", keyword));
+            results.push_str(&format!("Search for '{keyword}' in codebase\n"));
         }
 
-        format!(
-            "Debug analysis for error: {}\n{}\nUse this to suggest fixes.",
-            error_message, results
-        )
+        format!("Debug analysis for error: {error_message}\n{results}\nUse this to suggest fixes.")
     }
 }
 
@@ -171,7 +168,7 @@ impl Tool for AnalyzeLog {
         report.push_str("🔍 Log Analysis Report\n");
         report.push_str("======================\n\n");
 
-        report.push_str(&format!("📊 Summary (analyzed {} lines):\n", total_lines));
+        report.push_str(&format!("📊 Summary (analyzed {total_lines} lines):\n"));
         report.push_str(&format!(
             "   • Errors: {} ({:.1}%)\n",
             error_count,
@@ -196,7 +193,7 @@ impl Tool for AnalyzeLog {
         if !detected_patterns.is_empty() {
             report.push_str("⚠️  Detected Issues:\n");
             for pattern in &detected_patterns {
-                report.push_str(&format!("   • {}\n", pattern));
+                report.push_str(&format!("   • {pattern}\n"));
             }
             report.push('\n');
         }
@@ -206,7 +203,7 @@ impl Tool for AnalyzeLog {
             let mut errors: Vec<_> = error_messages.iter().collect();
             errors.sort_by(|a, b| b.1.cmp(a.1));
             for (msg, count) in errors.iter().take(5) {
-                report.push_str(&format!("   • {} ({}x)\n", msg, count));
+                report.push_str(&format!("   • {msg} ({count}x)\n"));
             }
             report.push('\n');
         }
@@ -216,7 +213,7 @@ impl Tool for AnalyzeLog {
             if let Some(trace) = stack_traces.first() {
                 report.push_str("   First stack trace:\n");
                 for line in trace.lines().take(5) {
-                    report.push_str(&format!("   {}\n", line));
+                    report.push_str(&format!("   {line}\n"));
                 }
                 if trace.lines().count() > 5 {
                     report.push_str("   ...\n");
@@ -421,11 +418,10 @@ stack trace:
         let mut log_content = String::new();
         for i in 0..100 {
             if i < 15 {
-                log_content.push_str(&format!("[2024-01-01 10:00:{:02}] ERROR: Error {}\n", i, i));
+                log_content.push_str(&format!("[2024-01-01 10:00:{i:02}] ERROR: Error {i}\n"));
             } else {
                 log_content.push_str(&format!(
-                    "[2024-01-01 10:00:{:02}] INFO: Normal operation\n",
-                    i
+                    "[2024-01-01 10:00:{i:02}] INFO: Normal operation\n"
                 ));
             }
         }
@@ -447,7 +443,7 @@ stack trace:
         // Create a large log
         let mut log_content = String::new();
         for i in 0..50 {
-            log_content.push_str(&format!("[2024-01-01 10:00:{:02}] INFO: Line {}\n", i, i));
+            log_content.push_str(&format!("[2024-01-01 10:00:{i:02}] INFO: Line {i}\n"));
         }
 
         let args = json!({

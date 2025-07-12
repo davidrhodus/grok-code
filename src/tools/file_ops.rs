@@ -35,7 +35,7 @@ impl Tool for ReadFile {
 
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
         match fs::read_to_string(&path) {
             Ok(content) => {
@@ -58,7 +58,7 @@ impl Tool for ReadFile {
                 std::io::ErrorKind::PermissionDenied => {
                     format!("Error: Permission denied reading file: {}", path.display())
                 }
-                _ => format!("Error reading file: {}", e),
+                _ => format!("Error reading file: {e}"),
             },
         }
     }
@@ -100,7 +100,7 @@ impl Tool for WriteFile {
 
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
         // Create backup if file exists
@@ -108,7 +108,7 @@ impl Tool for WriteFile {
         let backup_result = if path.exists() {
             match backup_manager.create_backup(&path) {
                 Ok(backup_path) => Some(backup_path),
-                Err(e) => return format!("Error creating backup: {}", e),
+                Err(e) => return format!("Error creating backup: {e}"),
             }
         } else {
             None
@@ -153,7 +153,7 @@ impl Tool for WriteFile {
                         "Error: Permission denied writing to file: {}",
                         path.display()
                     ),
-                    _ => format!("Error writing file: {}", e),
+                    _ => format!("Error writing file: {e}"),
                 },
             }
         }
@@ -216,14 +216,14 @@ impl Tool for EditFile {
 
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
         let backup_manager = BackupManager::new(None);
         let backup_path = if path.exists() {
             match backup_manager.create_backup(&path) {
                 Ok(backup_path) => backup_path,
-                Err(e) => return format!("Error creating backup: {}", e),
+                Err(e) => return format!("Error creating backup: {e}"),
             }
         } else {
             return format!("Error: File not found: {}", path.display());
@@ -252,8 +252,7 @@ impl Tool for EditFile {
                 let total_lines = rope.len_lines();
                 if start_line > total_lines {
                     return format!(
-                        "Error: start_line {} exceeds total lines in file ({})",
-                        start_line, total_lines
+                        "Error: start_line {start_line} exceeds total lines in file ({total_lines})"
                     );
                 }
 
@@ -272,13 +271,13 @@ impl Tool for EditFile {
                             "File edited successfully (backed up to {}).",
                             backup_path.display()
                         ),
-                        Err(e) => format!("Error writing to file: {}", e),
+                        Err(e) => format!("Error writing to file: {e}"),
                     },
                     Err(e) => match e.kind() {
                         std::io::ErrorKind::PermissionDenied => {
                             format!("Error: Permission denied creating file: {}", path.display())
                         }
-                        _ => format!("Error creating file: {}", e),
+                        _ => format!("Error creating file: {e}"),
                     },
                 }
             }
@@ -289,7 +288,7 @@ impl Tool for EditFile {
                 std::io::ErrorKind::PermissionDenied => {
                     format!("Error: Permission denied reading file: {}", path.display())
                 }
-                _ => format!("Error reading file: {}", e),
+                _ => format!("Error reading file: {e}"),
             },
         }
     }
@@ -321,7 +320,7 @@ impl Tool for ListFiles {
         let path_str = args["path"].as_str().unwrap_or(".");
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
         match fs::read_dir(&path) {
@@ -341,7 +340,7 @@ impl Tool for ListFiles {
                     "Error: Permission denied reading directory: {}",
                     path.display()
                 ),
-                _ => format!("Error listing directory: {}", e),
+                _ => format!("Error listing directory: {e}"),
             },
         }
     }

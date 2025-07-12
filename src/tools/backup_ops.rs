@@ -35,7 +35,7 @@ impl Tool for ListBackups {
 
         let path = match sanitize_path(path_str, &context.project_root) {
             Ok(p) => p,
-            Err(e) => return format!("Error: {}", e),
+            Err(e) => return format!("Error: {e}"),
         };
 
         let backup_manager = BackupManager::new(None);
@@ -56,7 +56,7 @@ impl Tool for ListBackups {
                     output
                 }
             }
-            Err(e) => format!("Error listing backups: {}", e),
+            Err(e) => format!("Error listing backups: {e}"),
         }
     }
 }
@@ -109,10 +109,7 @@ impl Tool for CleanBackups {
                 }
             }
 
-            format!(
-                "Cleaned up {} old backup(s) from the project",
-                total_removed
-            )
+            format!("Cleaned up {total_removed} old backup(s) from the project")
         } else {
             let path_str = match args["path"].as_str() {
                 Some(p) => p,
@@ -123,7 +120,7 @@ impl Tool for CleanBackups {
 
             let path = match sanitize_path(path_str, &context.project_root) {
                 Ok(p) => p,
-                Err(e) => return format!("Error: {}", e),
+                Err(e) => return format!("Error: {e}"),
             };
 
             if !context.confirm_action(&format!("clean old backups for {}", path.display())) {
@@ -147,7 +144,7 @@ impl Tool for CleanBackups {
                         )
                     }
                 }
-                Err(e) => format!("Error cleaning backups: {}", e),
+                Err(e) => format!("Error cleaning backups: {e}"),
             }
         }
     }

@@ -150,7 +150,7 @@ impl ApiClient for AnthropicClient {
 
         // Debug logging for API requests
         if std::env::var("DEBUG_API").is_ok() {
-            eprintln!("DEBUG: Sending Anthropic API request to {}", url);
+            eprintln!("DEBUG: Sending Anthropic API request to {url}");
             eprintln!("  Model: {}", request.model);
             eprintln!("  Messages count: {}", request.messages.len());
             eprintln!(
