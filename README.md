@@ -408,6 +408,42 @@ Use `--verbose` to see retry attempts and error details.
 
 ## Development
 
+### Code Quality Checks
+
+Grok Code enforces code quality standards using Rust's built-in tools:
+
+#### Pre-commit Checks
+
+A pre-commit hook automatically runs formatting and linting checks before each commit:
+
+```bash
+# The hook is already installed, but to run checks manually:
+./scripts/pre-commit-check.sh
+```
+
+This script will:
+- ✅ Check code formatting with `cargo fmt`
+- ✅ Run clippy lints with strict warnings
+- ✅ Run tests (non-blocking)
+
+#### Manual Checks
+
+```bash
+# Format code
+cargo fmt
+
+# Check formatting without modifying files
+cargo fmt -- --check
+
+# Run clippy with all targets and features
+cargo clippy --all-targets --all-features -- -D warnings
+
+# Run tests
+cargo test
+```
+
+The project is configured to fail CI/CD if formatting or clippy warnings are present.
+
 ### Building from Source
 
 ```bash
