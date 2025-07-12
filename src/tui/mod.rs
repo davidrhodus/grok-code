@@ -100,7 +100,7 @@ impl TuiApp {
                         // Add tool start message
                         let tool_msg = UiMessage {
                             role: "tool".to_string(),
-                            content: format!("{} {}...", icon, name),
+                            content: format!("{icon} {name}..."),
                             timestamp: chrono::Local::now().format("%H:%M:%S").to_string(),
                             tool_calls: vec![],
                         };
@@ -111,7 +111,7 @@ impl TuiApp {
                         // Add tool result message
                         let tool_msg = UiMessage {
                             role: "tool".to_string(),
-                            content: format!("[{}] {}", name, result),
+                            content: format!("[{name}] {result}"),
                             timestamp: chrono::Local::now().format("%H:%M:%S").to_string(),
                             tool_calls: vec![],
                         };
@@ -120,7 +120,7 @@ impl TuiApp {
                     }
                     TuiUpdate::Processing { message } => {
                         // Update status with processing message
-                        self.status = format!("⏳ {}", message);
+                        self.status = format!("⏳ {message}");
                     }
                     TuiUpdate::Error { message } => {
                         // Add error message
@@ -382,7 +382,7 @@ impl TuiApp {
             };
 
             items.push(ListItem::new(Line::from(vec![
-                Span::raw(format!("{} ", role_icon)),
+                Span::raw(format!("{role_icon} ")),
                 Span::styled(
                     format!("{} [{}]", msg.role.to_uppercase(), msg.timestamp),
                     header_style,

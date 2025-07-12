@@ -99,22 +99,22 @@ impl GrokAgent {
             match update {
                 TuiUpdate::Message(msg) => {
                     if let Some(content) = &msg.content {
-                        println!("💬 {}", content);
+                        println!("💬 {content}");
                     }
                 }
                 TuiUpdate::ToolStart { name, icon } => {
-                    println!("{} {}...", icon, name);
+                    println!("{icon} {name}...");
                 }
                 TuiUpdate::ToolResult { name: _, result } => {
-                    println!("{}", result);
+                    println!("{result}");
                 }
                 TuiUpdate::Processing { message } => {
-                    print!("{}", message);
+                    print!("{message}");
                     use std::io::{self, Write};
                     io::stdout().flush().unwrap();
                 }
                 TuiUpdate::Error { message } => {
-                    eprintln!("❌ {}", message);
+                    eprintln!("❌ {message}");
                 }
                 TuiUpdate::Complete => {
                     // No-op for stdout
@@ -291,7 +291,7 @@ impl GrokAgent {
                         elapsed_shown += 15;
                         if let Some(sender) = &tui_sender {
                             let _ = sender.send(TuiUpdate::Processing {
-                                message: format!(" ({}s)", elapsed_shown),
+                                message: format!(" ({elapsed_shown}s)"),
                             });
                         } else {
                             print!(" ({elapsed_shown}s)");
@@ -412,8 +412,7 @@ impl GrokAgent {
                 Err(e) => {
                     let error_msg = e.to_string();
                     if error_msg.contains("403") && error_msg.contains("credits") {
-                        let error_text = format!(
-                        "\n❌ API Credit Error Detected!\n\n\
+                        let error_text = "\n❌ API Credit Error Detected!\n\n\
                         It looks like your credits haven't activated yet. This is common with xAI.\n\n\
                         Quick solutions:\n\
                         1. Wait 5-15 minutes for credits to activate\n\
@@ -421,8 +420,7 @@ impl GrokAgent {
                            https://console.x.ai/team/[your-team-id]\n\
                         3. Try regenerating your API key after credits show as available\n\
                         4. Use OpenAI instead: grok-code --dev (requires OPENAI_API_KEY)\n\n\
-                        For detailed troubleshooting, see: ./TROUBLESHOOTING_XAI.md"
-                    );
+                        For detailed troubleshooting, see: ./TROUBLESHOOTING_XAI.md".to_string();
                         self.send_update(TuiUpdate::Error {
                             message: error_text,
                         });
@@ -625,7 +623,7 @@ impl GrokAgent {
                             Ok(result) => results.push(result),
                             Err(e) => {
                                 self.send_update(TuiUpdate::Error {
-                                    message: format!("Tool execution failed: {}", e),
+                                    message: format!("Tool execution failed: {e}"),
                                 });
                                 results.push((
                                     0,
@@ -669,7 +667,7 @@ impl GrokAgent {
                                     lines
                                         .iter()
                                         .take(10)
-                                        .map(|l| format!("  - {}", l))
+                                        .map(|l| format!("  - {l}"))
                                         .collect::<Vec<_>>()
                                         .join("\n")
                                         + &format!("\n  ... and {} more", lines.len() - 10)
@@ -680,7 +678,7 @@ impl GrokAgent {
                                     lines.len(),
                                     lines
                                         .iter()
-                                        .map(|l| format!("  - {}", l))
+                                        .map(|l| format!("  - {l}"))
                                         .collect::<Vec<_>>()
                                         .join("\n")
                                 )
@@ -689,9 +687,9 @@ impl GrokAgent {
                         "read_file" | "search_codebase" => {
                             let lines = tool_result.lines().count();
                             if lines > 5 {
-                                format!("✓ Success ({} lines of output)", lines)
+                                format!("✓ Success ({lines} lines of output)")
                             } else {
-                                format!("✓ {}", tool_result)
+                                format!("✓ {tool_result}")
                             }
                         }
                         "run_shell_command" | "run_lint" => {
@@ -705,7 +703,7 @@ impl GrokAgent {
                             if tool_result.len() > 200 {
                                 format!("✓ Done (output: {} chars)", tool_result.len())
                             } else {
-                                format!("✓ {}", tool_result)
+                                format!("✓ {tool_result}")
                             }
                         }
                     };
