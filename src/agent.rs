@@ -131,10 +131,7 @@ impl GrokAgent {
 
     /// Get the last assistant message from the conversation
     pub fn get_last_assistant_message(&self) -> Option<&Message> {
-        self.messages
-            .iter()
-            .rev()
-            .find(|m| m.role == "assistant")
+        self.messages.iter().rev().find(|m| m.role == "assistant")
     }
 
     /// Get all messages since a given index
@@ -325,7 +322,6 @@ impl GrokAgent {
     }
 
     pub async fn process_prompt(&mut self, user_message: &str, interactive: bool) {
-
         self.messages.push(Message {
             role: "user".to_string(),
             content: Some(user_message.to_string()),
@@ -384,12 +380,12 @@ impl GrokAgent {
             // Try to get cached response
             let api_result = if let Some(ref key) = cache_key {
                 if let Some(cached_response) = self.response_cache.get(key) {
-                                    // Clear thinking indicator for cached response
-                if iterations == 1 {
-                    self.send_update(TuiUpdate::Processing {
-                        message: "\n💡 Using cached response".to_string(),
-                    });
-                }
+                    // Clear thinking indicator for cached response
+                    if iterations == 1 {
+                        self.send_update(TuiUpdate::Processing {
+                            message: "\n💡 Using cached response".to_string(),
+                        });
+                    }
 
                     // Deserialize cached response
                     match serde_json::from_str::<ChatCompletionResponse>(&cached_response) {
@@ -414,9 +410,9 @@ impl GrokAgent {
             let api_response = match api_result {
                 Ok(resp) => resp,
                 Err(e) => {
-                                    let error_msg = e.to_string();
-                if error_msg.contains("403") && error_msg.contains("credits") {
-                    let error_text = format!(
+                    let error_msg = e.to_string();
+                    if error_msg.contains("403") && error_msg.contains("credits") {
+                        let error_text = format!(
                         "\n❌ API Credit Error Detected!\n\n\
                         It looks like your credits haven't activated yet. This is common with xAI.\n\n\
                         Quick solutions:\n\
@@ -427,9 +423,11 @@ impl GrokAgent {
                         4. Use OpenAI instead: grok-code --dev (requires OPENAI_API_KEY)\n\n\
                         For detailed troubleshooting, see: ./TROUBLESHOOTING_XAI.md"
                     );
-                    self.send_update(TuiUpdate::Error { message: error_text });
-                    self.send_update(TuiUpdate::Complete);
-                    return;
+                        self.send_update(TuiUpdate::Error {
+                            message: error_text,
+                        });
+                        self.send_update(TuiUpdate::Complete);
+                        return;
                     } else if error_msg.contains("Rate limit exceeded") {
                         rate_limit_retries += 1;
                         if rate_limit_retries > max_rate_limit_retries {
@@ -477,11 +475,14 @@ impl GrokAgent {
                             return;
                         }
                     } else {
-                        let mut error_text = "\n❌ Something went wrong. Please try again.".to_string();
+                        let mut error_text =
+                            "\n❌ Something went wrong. Please try again.".to_string();
                         if std::env::var("DEBUG_API").is_ok() {
                             error_text.push_str(&format!("\nDEBUG: {error_msg}"));
                         }
-                        self.send_update(TuiUpdate::Error { message: error_text });
+                        self.send_update(TuiUpdate::Error {
+                            message: error_text,
+                        });
                         self.send_update(TuiUpdate::Complete);
                         return;
                     }
@@ -493,7 +494,9 @@ impl GrokAgent {
                 if std::env::var("DEBUG_API").is_ok() {
                     error_text.push_str("\nDEBUG: Empty API response received");
                 }
-                self.send_update(TuiUpdate::Error { message: error_text });
+                self.send_update(TuiUpdate::Error {
+                    message: error_text,
+                });
                 break;
             }
 
@@ -663,14 +666,23 @@ impl GrokAgent {
                                 format!(
                                     "✓ Found {} files (showing first 10):\n{}",
                                     lines.len(),
-                                    lines.iter().take(10).map(|l| format!("  - {}", l)).collect::<Vec<_>>().join("\n")
-                                    + &format!("\n  ... and {} more", lines.len() - 10)
+                                    lines
+                                        .iter()
+                                        .take(10)
+                                        .map(|l| format!("  - {}", l))
+                                        .collect::<Vec<_>>()
+                                        .join("\n")
+                                        + &format!("\n  ... and {} more", lines.len() - 10)
                                 )
                             } else {
                                 format!(
                                     "✓ Found {} files:\n{}",
                                     lines.len(),
-                                    lines.iter().map(|l| format!("  - {}", l)).collect::<Vec<_>>().join("\n")
+                                    lines
+                                        .iter()
+                                        .map(|l| format!("  - {}", l))
+                                        .collect::<Vec<_>>()
+                                        .join("\n")
                                 )
                             }
                         }

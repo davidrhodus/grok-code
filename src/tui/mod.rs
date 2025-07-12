@@ -9,8 +9,8 @@
 
 pub mod diff;
 
-use crate::api::Message;
 use crate::agent::TuiUpdate;
+use crate::api::Message;
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyModifiers,
@@ -195,7 +195,7 @@ impl TuiApp {
         loop {
             // Process any pending updates from agent
             self.process_updates();
-            
+
             terminal.draw(|f| self.draw(f))?;
 
             if event::poll(Duration::from_millis(100))? {
@@ -243,13 +243,14 @@ impl TuiApp {
             (KeyCode::Char('i'), _) => {
                 if !self.is_processing {
                     self.mode = AppMode::Input;
-                    self.status =
-                        "📝 Input mode - Type your message, Enter to send, Esc to cancel".to_string();
+                    self.status = "📝 Input mode - Type your message, Enter to send, Esc to cancel"
+                        .to_string();
                 }
             }
             (KeyCode::Char('s'), _) => {
                 self.mode = AppMode::ScrollingMessages;
-                self.status = "📜 Scroll mode - Use j/k or arrows to scroll, Esc to exit".to_string();
+                self.status =
+                    "📜 Scroll mode - Use j/k or arrows to scroll, Esc to exit".to_string();
             }
             (KeyCode::Char('?'), _) => {
                 self.show_help();
@@ -279,7 +280,8 @@ impl TuiApp {
             }
             KeyCode::Esc => {
                 self.mode = AppMode::Normal;
-                self.status = "Normal mode - Press 'i' to input, 's' to scroll, '?' for help".to_string();
+                self.status =
+                    "Normal mode - Press 'i' to input, 's' to scroll, '?' for help".to_string();
             }
             _ => {}
         }
@@ -311,7 +313,8 @@ impl TuiApp {
             }
             KeyCode::Esc => {
                 self.mode = AppMode::Normal;
-                self.status = "Normal mode - Press 'i' to input, 's' to scroll, '?' for help".to_string();
+                self.status =
+                    "Normal mode - Press 'i' to input, 's' to scroll, '?' for help".to_string();
             }
             _ => {}
         }
@@ -347,17 +350,26 @@ impl TuiApp {
         for (idx, msg) in self.messages.iter().enumerate() {
             // Add separator before each message (except the first)
             if idx > 0 {
-                items.push(ListItem::new(Line::from(vec![
-                    Span::styled("─".repeat(area.width as usize), Style::default().fg(Color::DarkGray))
-                ])));
+                items.push(ListItem::new(Line::from(vec![Span::styled(
+                    "─".repeat(area.width as usize),
+                    Style::default().fg(Color::DarkGray),
+                )])));
             }
 
             // Role and timestamp header
             let header_style = match msg.role.as_str() {
-                "user" => Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
-                "assistant" => Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD),
-                "system" => Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
-                "tool" => Style::default().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+                "user" => Style::default()
+                    .fg(Color::Green)
+                    .add_modifier(Modifier::BOLD),
+                "assistant" => Style::default()
+                    .fg(Color::Blue)
+                    .add_modifier(Modifier::BOLD),
+                "system" => Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+                "tool" => Style::default()
+                    .fg(Color::Magenta)
+                    .add_modifier(Modifier::BOLD),
                 _ => Style::default().fg(Color::Gray),
             };
 
@@ -400,12 +412,16 @@ impl TuiApp {
 
         // Add processing indicator at the end if processing
         if self.is_processing {
-            items.push(ListItem::new(Line::from(vec![
-                Span::styled("─".repeat(area.width as usize), Style::default().fg(Color::DarkGray))
-            ])));
-            items.push(ListItem::new(Line::from(vec![
-                Span::styled("⏳ Processing...", Style::default().fg(Color::Yellow).add_modifier(Modifier::SLOW_BLINK)),
-            ])));
+            items.push(ListItem::new(Line::from(vec![Span::styled(
+                "─".repeat(area.width as usize),
+                Style::default().fg(Color::DarkGray),
+            )])));
+            items.push(ListItem::new(Line::from(vec![Span::styled(
+                "⏳ Processing...",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::SLOW_BLINK),
+            )])));
         }
 
         let messages_list = List::new(items)
@@ -476,7 +492,7 @@ impl TuiApp {
         };
 
         let status_text = format!(" {} {} ", mode_indicator, self.status);
-        
+
         let status = Paragraph::new(status_text)
             .style(status_style)
             .alignment(Alignment::Left)

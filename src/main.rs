@@ -635,16 +635,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                             // Create channel for agent updates
                             let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-                            
+
                             // Set up TUI to receive updates
                             tui_app.set_update_receiver(rx);
-                            
+
                             // Set up agent to send updates
                             agent.set_tui_sender(tx);
 
                             // Process the prompt - agent will send updates through channel
                             agent.process_prompt(&input, true).await;
-                            
+
                             // Clear the TUI sender so agent doesn't send updates when not in TUI
                             agent.set_tui_sender(tokio::sync::mpsc::unbounded_channel().0);
                         }
