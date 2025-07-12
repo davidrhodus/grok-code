@@ -32,7 +32,7 @@ A powerful CLI tool that provides a Claude-like coding assistant experience usin
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/grok-code.git
+git clone https://github.com/davidrhodus/grok-code.git
 cd grok-code
 
 # Build the project
