@@ -1,0 +1,73 @@
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Test outputs and logs
+*.log
+test-*.sh
+debug-*.sh
+monitor-*.sh
+
+# Environment files
+.env
+.env.local
+
+# Debug files
+*.pdb
+
+# OS specific files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+
+# Coverage reports
+*.profraw
+*.profdata
+coverage/
+tarpaulin-report.html
+lcov.info
+cobertura.xml
+flamegraph.svg
+perf.data
+perf.data.old
+
+# Documentation build
+/target/doc/
+/docs/
+# Uncomment the following line if deploying to GitHub Pages:
+# !/docs/
+
+# Release builds for distribution
+/dist/
+*.tar.gz
+*.zip
+
+# Development/temporary markdown files
+COMPLETION_SUMMARY.md
+GIT_COMMIT_SUMMARY.md
+PUBLISHING_CHECKLIST.md
+TODO_TASKS.md
+IMPROVEMENTS.md
+EDITING_CAPABILITIES.md
+ERROR_HANDLING_EVALUATION.md
+DEBUG_GUIDE.md
+TROUBLESHOOTING_XAI.md
+KNOWN_ISSUES.md
+
+# Additional temporary demo scripts
+demo.sh
+showcase-*.sh

@@ -1,0 +1,83 @@
+# Example plugin configuration for grok-code
+# Place this file in one of:
+# - ./plugins/
+# - ~/.grok-code/plugins/
+# - $XDG_CONFIG_HOME/grok-code/plugins/
+
+[[plugins]]
+name = "count_lines"
+description = "Count lines in a file using wc"
+type = "script"
+command = "wc -l"
+parameters = '''
+{
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "description": "Path to the file to count lines in"
+    }
+  },
+  "required": ["file"]
+}
+'''
+
+[[plugins]]
+name = "format_json"
+description = "Format JSON files using jq"
+type = "script"
+command = "jq ."
+parameters = '''
+{
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "description": "Path to the JSON file to format"
+    }
+  },
+  "required": ["file"]
+}
+'''
+
+[[plugins]]
+name = "run_pytest"
+description = "Run Python tests with pytest"
+type = "script"
+command = "pytest"
+working_dir = "."
+parameters = '''
+{
+  "type": "object",
+  "properties": {
+    "test_file": {
+      "type": "string",
+      "description": "Specific test file to run (optional)"
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Run tests in verbose mode",
+      "default": false
+    }
+  }
+}
+'''
+env = { PYTHONDONTWRITEBYTECODE = "1" }
+
+[[plugins]]
+name = "check_spelling"
+description = "Check spelling in markdown files using aspell"
+type = "script"
+command = "aspell check"
+parameters = '''
+{
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "description": "Markdown file to check spelling in"
+    }
+  },
+  "required": ["file"]
+}
+''' 

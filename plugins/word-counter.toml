@@ -1,0 +1,26 @@
+[[plugins]]
+name = "word_counter"
+description = "Count words in files with optional pattern matching"
+type = "script"
+command = "python3 plugins/word-counter.py"
+parameters = '''
+{
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "description": "Path to the file to analyze"
+    },
+    "pattern": {
+      "type": "string",
+      "description": "Optional pattern to filter words"
+    },
+    "ignore_case": {
+      "type": "boolean",
+      "description": "Ignore case when matching pattern",
+      "default": false
+    }
+  },
+  "required": ["file"]
+}
+''' 
