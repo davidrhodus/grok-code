@@ -1,5 +1,5 @@
 //! # Terminal User Interface Module
-//! 
+//!
 //! This module provides a rich terminal user interface for grok-code using ratatui.
 //! It offers better visualization for:
 //! - Chat conversations with syntax highlighting
@@ -9,6 +9,14 @@
 
 pub mod diff;
 
+use crate::api::Message;
+use crossterm::{
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyModifiers,
+    },
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -16,17 +24,7 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame, Terminal,
 };
-use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyModifiers},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use std::{
-    error::Error,
-    io,
-    time::Duration,
-};
-use crate::api::Message;
+use std::{error::Error, io, time::Duration};
 
 /// TUI application state
 pub struct TuiApp {
@@ -80,14 +78,19 @@ impl TuiApp {
             role: message.role.clone(),
             content: message.content.clone().unwrap_or_default(),
             timestamp: chrono::Local::now().format("%H:%M:%S").to_string(),
-            tool_calls: message.tool_calls.as_ref()
-                .map(|calls| calls.iter()
-                    .map(|call| format!("🔧 {}", call.function.name))
-                    .collect())
+            tool_calls: message
+                .tool_calls
+                .as_ref()
+                .map(|calls| {
+                    calls
+                        .iter()
+                        .map(|call| format!("🔧 {}", call.function.name))
+                        .collect()
+                })
                 .unwrap_or_default(),
         };
         self.messages.push(ui_msg);
-        
+
         // Auto-scroll to bottom when new message arrives
         self.scroll = self.messages.len().saturating_sub(1) as u16;
     }
@@ -146,7 +149,8 @@ impl TuiApp {
             }
             (KeyCode::Char('i'), _) => {
                 self.mode = AppMode::Input;
-                self.status = "Input mode - Type your message, Enter to send, Esc to cancel".to_string();
+                self.status =
+                    "Input mode - Type your message, Enter to send, Esc to cancel".to_string();
             }
             (KeyCode::Char('s'), _) => {
                 self.mode = AppMode::ScrollingMessages;
@@ -190,7 +194,7 @@ impl TuiApp {
     /// Handle keys in scroll mode
     fn handle_scroll_mode(&mut self, key: KeyEvent) -> Result<Option<String>, Box<dyn Error>> {
         let max_scroll = self.messages.len().saturating_sub(1) as u16;
-        
+
         match key.code {
             KeyCode::Char('j') | KeyCode::Down => {
                 self.scroll = (self.scroll + 1).min(max_scroll);
@@ -221,7 +225,8 @@ impl TuiApp {
 
     /// Show help message
     fn show_help(&mut self) {
-        self.status = "Help: i=input s=scroll j/k=up/down Enter=send Esc=cancel Ctrl-C=quit".to_string();
+        self.status =
+            "Help: i=input s=scroll j/k=up/down Enter=send Esc=cancel Ctrl-C=quit".to_string();
     }
 
     /// Draw the UI
@@ -229,9 +234,9 @@ impl TuiApp {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Min(3),      // Messages area
-                Constraint::Length(3),   // Input area
-                Constraint::Length(1),   // Status bar
+                Constraint::Min(3),    // Messages area
+                Constraint::Length(3), // Input area
+                Constraint::Length(1), // Status bar
             ])
             .split(f.area());
 
@@ -242,47 +247,58 @@ impl TuiApp {
 
     /// Draw the messages area
     fn draw_messages(&mut self, f: &mut Frame, area: Rect) {
-        let messages: Vec<ListItem> = self.messages
+        let messages: Vec<ListItem> = self
+            .messages
             .iter()
             .flat_map(|msg| {
                 let mut items = vec![];
-                
+
                 // Role and timestamp
                 let header = format!("[{}] {}", msg.timestamp, msg.role);
                 let style = match msg.role.as_str() {
-                    "user" => Style::default().fg(Color::Green).add_modifier(Modifier::BOLD),
-                    "assistant" => Style::default().fg(Color::Blue).add_modifier(Modifier::BOLD),
-                    "system" => Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                    "user" => Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::BOLD),
+                    "assistant" => Style::default()
+                        .fg(Color::Blue)
+                        .add_modifier(Modifier::BOLD),
+                    "system" => Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
                     _ => Style::default().fg(Color::Gray),
                 };
                 items.push(ListItem::new(header).style(style));
-                
+
                 // Content
                 for line in msg.content.lines() {
                     items.push(ListItem::new(format!("  {}", line)));
                 }
-                
+
                 // Tool calls
                 for tool in &msg.tool_calls {
-                    items.push(ListItem::new(format!("  {}", tool))
-                        .style(Style::default().fg(Color::Cyan)));
+                    items.push(
+                        ListItem::new(format!("  {}", tool))
+                            .style(Style::default().fg(Color::Cyan)),
+                    );
                 }
-                
+
                 // Empty line between messages
                 items.push(ListItem::new(""));
-                
+
                 items
             })
             .collect();
 
         let messages_list = List::new(messages)
-            .block(Block::default()
-                .borders(Borders::ALL)
-                .title(" Chat Messages ")
-                .border_style(match self.mode {
-                    AppMode::ScrollingMessages => Style::default().fg(Color::Yellow),
-                    _ => Style::default(),
-                }))
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title(" Chat Messages ")
+                    .border_style(match self.mode {
+                        AppMode::ScrollingMessages => Style::default().fg(Color::Yellow),
+                        _ => Style::default(),
+                    }),
+            )
             .highlight_style(Style::default().add_modifier(Modifier::REVERSED))
             .highlight_symbol("> ");
 
@@ -293,22 +309,21 @@ impl TuiApp {
     fn draw_input(&self, f: &mut Frame, area: Rect) {
         let input = Paragraph::new(self.input.as_str())
             .style(Style::default().fg(Color::White))
-            .block(Block::default()
-                .borders(Borders::ALL)
-                .title(" Input ")
-                .border_style(match self.mode {
-                    AppMode::Input => Style::default().fg(Color::Green),
-                    _ => Style::default(),
-                }));
-        
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title(" Input ")
+                    .border_style(match self.mode {
+                        AppMode::Input => Style::default().fg(Color::Green),
+                        _ => Style::default(),
+                    }),
+            );
+
         f.render_widget(input, area);
-        
+
         // Show cursor in input mode
         if self.mode == AppMode::Input {
-            f.set_cursor_position((
-                area.x + self.input.len() as u16 + 1,
-                area.y + 1,
-            ))
+            f.set_cursor_position((area.x + self.input.len() as u16 + 1, area.y + 1))
         }
     }
 
@@ -317,7 +332,7 @@ impl TuiApp {
         let status = Paragraph::new(self.status.as_str())
             .style(Style::default().fg(Color::Gray).bg(Color::Black))
             .alignment(Alignment::Left);
-        
+
         f.render_widget(status, area);
     }
 }
@@ -356,7 +371,7 @@ pub fn restore_terminal(
 pub async fn run_tui_demo() -> Result<(), Box<dyn Error>> {
     let mut terminal = init_terminal()?;
     let mut app = TuiApp::new();
-    
+
     // Add some demo messages
     app.add_message(&Message {
         role: "system".to_string(),
@@ -364,27 +379,27 @@ pub async fn run_tui_demo() -> Result<(), Box<dyn Error>> {
         tool_calls: None,
         tool_call_id: None,
     });
-    
+
     app.add_message(&Message {
         role: "user".to_string(),
         content: Some("Show me the main.rs file".to_string()),
         tool_calls: None,
         tool_call_id: None,
     });
-    
+
     app.add_message(&Message {
         role: "assistant".to_string(),
         content: Some("I'll read the main.rs file for you.".to_string()),
         tool_calls: Some(vec![]),
         tool_call_id: None,
     });
-    
+
     let result = app.run(&mut terminal).await;
     restore_terminal(&mut terminal)?;
-    
+
     if let Ok(Some(input)) = result {
         println!("User input: {}", input);
     }
-    
+
     Ok(())
-} 
+}

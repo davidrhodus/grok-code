@@ -126,11 +126,7 @@ impl Tool for WriteFile {
                     backup_path.display(),
                     content
                 ),
-                None => format!(
-                    "Dry-run: Would write to {}:\n{}",
-                    path.display(),
-                    content
-                ),
+                None => format!("Dry-run: Would write to {}:\n{}", path.display(), content),
             }
         } else {
             match fs::write(&path, content) {

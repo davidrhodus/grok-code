@@ -1,16 +1,16 @@
 //! # Plugin System
-//! 
+//!
 //! This module provides a plugin system for loading custom tools dynamically.
 //! Plugins can be loaded from configuration files or external libraries.
-//! 
+//!
 //! ## Plugin Types
-//! 
+//!
 //! - **Script Plugins**: Tools defined in configuration files (JSON/TOML)
 //! - **Binary Plugins**: External executables that implement the tool protocol
 //! - **Library Plugins**: Dynamic libraries (.so/.dll/.dylib) - future enhancement
-//! 
+//!
 //! ## Example Plugin Configuration
-//! 
+//!
 //! ```toml
 //! [[plugins]]
 //! name = "custom_formatter"
@@ -118,7 +118,7 @@ impl Tool for PluginTool {
         };
 
         let mut cmd = Command::new(program);
-        
+
         // Add remaining arguments
         for arg in parts {
             cmd.arg(arg);
@@ -201,10 +201,7 @@ impl PluginLoader {
         let content = std::fs::read_to_string(path)
             .map_err(|e| GrokError::Config(format!("Failed to read plugin config: {}", e)))?;
 
-        let extension = path
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .unwrap_or("");
+        let extension = path.extension().and_then(|ext| ext.to_str()).unwrap_or("");
 
         let configs: Vec<PluginConfig> = match extension {
             "toml" => {
@@ -263,7 +260,11 @@ impl PluginLoader {
                                 println!("Loaded {} plugins from {}", count, path.display());
                             }
                             Err(e) => {
-                                eprintln!("Warning: Failed to load plugins from {}: {}", path.display(), e);
+                                eprintln!(
+                                    "Warning: Failed to load plugins from {}: {}",
+                                    path.display(),
+                                    e
+                                );
                             }
                         }
                     }
@@ -278,9 +279,7 @@ impl PluginLoader {
     pub fn create_tools(self) -> Vec<Box<dyn Tool + Send + Sync>> {
         self.plugins
             .into_iter()
-            .map(|config| {
-                Box::new(PluginTool::new(config)) as Box<dyn Tool + Send + Sync>
-            })
+            .map(|config| Box::new(PluginTool::new(config)) as Box<dyn Tool + Send + Sync>)
             .collect()
     }
 }
@@ -381,4 +380,4 @@ parameters = '{}'
         assert_eq!(tool.name(), "test");
         assert_eq!(tool.description(), "Test plugin");
     }
-} 
+}

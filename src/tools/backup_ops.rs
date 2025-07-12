@@ -85,7 +85,7 @@ impl Tool for CleanBackups {
 
     fn execute(&self, args: &JsonValue, context: &ToolContext<'_>) -> String {
         let clean_all = args["all"].as_bool().unwrap_or(false);
-        
+
         if clean_all {
             if !context.confirm_action("clean all old backups in the project") {
                 return "Cleanup not confirmed.".to_string();
@@ -98,7 +98,7 @@ impl Tool for CleanBackups {
             // Clean backups for all files in the project
             let mut total_removed = 0;
             let backup_manager = BackupManager::new(None);
-            
+
             for entry in walkdir::WalkDir::new(&context.project_root)
                 .into_iter()
                 .filter_map(|e| e.ok())
@@ -109,11 +109,16 @@ impl Tool for CleanBackups {
                 }
             }
 
-            format!("Cleaned up {} old backup(s) from the project", total_removed)
+            format!(
+                "Cleaned up {} old backup(s) from the project",
+                total_removed
+            )
         } else {
             let path_str = match args["path"].as_str() {
                 Some(p) => p,
-                None => return "Error: Either 'path' parameter or 'all' flag is required".to_string(),
+                None => {
+                    return "Error: Either 'path' parameter or 'all' flag is required".to_string()
+                }
             };
 
             let path = match sanitize_path(path_str, &context.project_root) {
@@ -135,11 +140,15 @@ impl Tool for CleanBackups {
                     if removed.is_empty() {
                         format!("No old backups to clean for {}", path.display())
                     } else {
-                        format!("Cleaned up {} old backup(s) for {}", removed.len(), path.display())
+                        format!(
+                            "Cleaned up {} old backup(s) for {}",
+                            removed.len(),
+                            path.display()
+                        )
                     }
                 }
                 Err(e) => format!("Error cleaning backups: {}", e),
             }
         }
     }
-} 
+}

@@ -21,7 +21,7 @@ pub enum GrokError {
 
     /// Rate limit exceeded with retry information
     #[error("Rate limit exceeded: {message}")]
-    RateLimitExceeded { 
+    RateLimitExceeded {
         message: String,
         retry_after: Option<u64>,
     },
@@ -136,7 +136,7 @@ impl GrokError {
         match self {
             Self::RateLimitExceeded { retry_after, .. } => *retry_after,
             Self::Timeout(_) => Some(5), // Default 5 second retry for timeouts
-            Self::Http(_) => Some(2),     // Default 2 second retry for HTTP errors
+            Self::Http(_) => Some(2),    // Default 2 second retry for HTTP errors
             _ => None,
         }
     }

@@ -183,7 +183,10 @@ impl ApiClient for AnthropicClient {
 
         if !response.status().is_success() {
             let _status = response.status();
-            let text = response.text().await.unwrap_or_else(|_| "Rate limit exceeded".to_string());
+            let text = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Rate limit exceeded".to_string());
             return Err(GrokError::rate_limited(text, Some(60))); // Default 60 second retry
         }
 

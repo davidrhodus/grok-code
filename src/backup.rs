@@ -1,13 +1,13 @@
 //! Backup management with retention policies
-//! 
+//!
 //! This module provides functionality for creating timestamped backups
 //! and cleaning up old backups based on retention policies.
 
+use crate::error::{GrokError, Result};
+use chrono::{DateTime, Local, Utc};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
-use chrono::{DateTime, Local, Utc};
-use crate::error::{GrokError, Result};
 
 /// Default retention period in days if not specified
 const DEFAULT_RETENTION_DAYS: u64 = 7;
@@ -35,17 +35,17 @@ impl BackupManager {
     /// Create a timestamped backup of a file
     pub fn create_backup(&self, file_path: &Path) -> Result<PathBuf> {
         if !file_path.exists() {
-            return Err(GrokError::FileNotFound(
-                format!("Cannot backup non-existent file: {}", file_path.display())
-            ));
+            return Err(GrokError::FileNotFound(format!(
+                "Cannot backup non-existent file: {}",
+                file_path.display()
+            )));
         }
 
         // Generate timestamped backup filename
         let backup_path = self.generate_backup_path(file_path);
 
         // Create backup
-        fs::copy(file_path, &backup_path)
-            .map_err(GrokError::Io)?;
+        fs::copy(file_path, &backup_path).map_err(GrokError::Io)?;
 
         // Clean up old backups if retention is enabled
         if self.retention_days > 0 {
@@ -58,12 +58,13 @@ impl BackupManager {
     /// Generate a timestamped backup path for a file
     fn generate_backup_path(&self, file_path: &Path) -> PathBuf {
         let timestamp = Local::now().format("%Y%m%d_%H%M%S");
-        let file_name = file_path.file_name()
+        let file_name = file_path
+            .file_name()
             .and_then(|n| n.to_str())
             .unwrap_or("unknown");
-        
+
         let backup_name = format!("{}.{}.bak", file_name, timestamp);
-        
+
         // Place backup in same directory as original file
         let mut backup_path = file_path.to_path_buf();
         backup_path.set_file_name(backup_name);
@@ -77,10 +78,12 @@ impl BackupManager {
         }
 
         let mut removed = Vec::new();
-        let parent_dir = original_file.parent()
+        let parent_dir = original_file
+            .parent()
             .ok_or_else(|| GrokError::InvalidInput("File has no parent directory".to_string()))?;
 
-        let file_name = original_file.file_name()
+        let file_name = original_file
+            .file_name()
             .and_then(|n| n.to_str())
             .ok_or_else(|| GrokError::InvalidInput("Invalid file name".to_string()))?;
 
@@ -92,7 +95,7 @@ impl BackupManager {
         for entry in fs::read_dir(parent_dir).map_err(GrokError::Io)? {
             let entry = entry.map_err(GrokError::Io)?;
             let path = entry.path();
-            
+
             // Check if this is a backup file for our original file
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
                 if name.starts_with(&format!("{}.", file_name)) && name.ends_with(".bak") {
@@ -103,8 +106,11 @@ impl BackupManager {
                                 if age > retention_duration {
                                     // Remove old backup
                                     if let Err(e) = fs::remove_file(&path) {
-                                        eprintln!("Warning: Failed to remove old backup {}: {}", 
-                                                 path.display(), e);
+                                        eprintln!(
+                                            "Warning: Failed to remove old backup {}: {}",
+                                            path.display(),
+                                            e
+                                        );
                                     } else {
                                         removed.push(path);
                                     }
@@ -131,10 +137,12 @@ impl BackupManager {
     /// Get all backups for a file
     pub fn list_backups(&self, original_file: &Path) -> Result<Vec<BackupInfo>> {
         let mut backups = Vec::new();
-        let parent_dir = original_file.parent()
+        let parent_dir = original_file
+            .parent()
             .ok_or_else(|| GrokError::InvalidInput("File has no parent directory".to_string()))?;
 
-        let file_name = original_file.file_name()
+        let file_name = original_file
+            .file_name()
             .and_then(|n| n.to_str())
             .ok_or_else(|| GrokError::InvalidInput("Invalid file name".to_string()))?;
 
@@ -142,20 +150,21 @@ impl BackupManager {
         for entry in fs::read_dir(parent_dir).map_err(GrokError::Io)? {
             let entry = entry.map_err(GrokError::Io)?;
             let path = entry.path();
-            
+
             // Check if this is a backup file for our original file
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
                 if name.starts_with(&format!("{}.", file_name)) && name.ends_with(".bak") {
                     // Extract timestamp from filename
                     if let Ok(metadata) = entry.metadata() {
                         if let Ok(modified) = metadata.modified() {
-                            let timestamp = modified.duration_since(UNIX_EPOCH)
+                            let timestamp = modified
+                                .duration_since(UNIX_EPOCH)
                                 .unwrap_or_default()
                                 .as_secs();
                             let datetime = DateTime::<Utc>::from_timestamp(timestamp as i64, 0)
                                 .map(|dt| dt.with_timezone(&Local))
                                 .unwrap_or_else(Local::now);
-                            
+
                             backups.push(BackupInfo {
                                 path,
                                 created: datetime,
@@ -205,7 +214,7 @@ mod tests {
 
         assert!(backup_path.exists());
         assert!(backup_path.to_str().unwrap().contains(".bak"));
-        
+
         // Verify content
         let backup_content = fs::read_to_string(&backup_path).unwrap();
         assert_eq!(backup_content, "test content");
@@ -216,11 +225,11 @@ mod tests {
         let manager = BackupManager::new(Some(7));
         let test_path = Path::new("/tmp/test.rs");
         let backup_path = manager.generate_backup_path(test_path);
-        
+
         let backup_name = backup_path.file_name().unwrap().to_str().unwrap();
         assert!(backup_name.starts_with("test.rs."));
         assert!(backup_name.ends_with(".bak"));
     }
 
     // TODO: Add tests for cleanup functionality
-} 
+}

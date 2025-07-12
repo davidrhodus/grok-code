@@ -1,27 +1,27 @@
 //! # Tools Module
-//! 
+//!
 //! This module contains all the tools available to the AI agent. Tools are organized
 //! into categories based on their functionality.
-//! 
+//!
 //! ## Tool Categories
-//! 
+//!
 //! - **File Operations** ([`file_ops`]): Read, write, edit files
 //! - **Shell Commands** ([`shell`]): Execute system commands
 //! - **Search** ([`search`]): Search through codebases
 //! - **Analysis** ([`analysis`]): Code analysis, debugging, linting
 //! - **Git Operations** ([`git_ops`]): Git commits, PRs, merge conflict resolution
 //! - **External Services** ([`external`]): Web search, Jira integration
-//! 
+//!
 //! ## Creating Custom Tools
-//! 
+//!
 //! To create a custom tool, implement the [`Tool`] trait:
-//! 
+//!
 //! ```
 //! use grok_code::tools::{Tool, ToolContext};
 //! use serde_json::{json, Value as JsonValue};
-//! 
+//!
 //! struct MyTool;
-//! 
+//!
 //! impl Tool for MyTool {
 //!     fn name(&self) -> &'static str {
 //!         "my_tool"
@@ -48,10 +48,10 @@
 //! }
 //! ```
 
+use once_cell::sync::Lazy;
 use serde_json::Value as JsonValue;
 use std::path::PathBuf;
 use std::sync::Mutex;
-use once_cell::sync::Lazy;
 
 // Global mutex for stdin access during confirmations
 static STDIN_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
@@ -59,10 +59,10 @@ static STDIN_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 // Re-export all tool modules
 /// Tools for code analysis, debugging, and linting
 pub mod analysis;
-/// Tools for external service integration (web search, Jira)
-pub mod external;
 /// Backup management tools
 pub mod backup_ops;
+/// Tools for external service integration (web search, Jira)
+pub mod external;
 /// Tools for file system operations
 pub mod file_ops;
 /// Tools for git operations (commits, PRs, merge conflicts)
@@ -76,12 +76,12 @@ pub mod utils;
 
 // Re-export commonly used items
 pub use analysis::{AnalyzeLog, DebugCode, RunLint};
+pub use backup_ops::{CleanBackups, ListBackups};
 pub use external::{CreateJiraTicket, WebSearch};
 pub use file_ops::{EditFile, ListFiles, ReadFile, WriteFile};
 pub use git_ops::{CreateCommit, ResolveMergeConflict, SubmitPR};
 pub use search::SearchCodebase;
 pub use shell::RunShellCommand;
-pub use backup_ops::{ListBackups, CleanBackups};
 
 /// Trait that all tools must implement
 pub trait Tool {
@@ -208,8 +208,8 @@ impl ToolRegistry {
 
     /// Load plugins from configured directories
     fn load_plugins() -> Result<Vec<Box<dyn Tool + Send + Sync>>, Box<dyn std::error::Error>> {
-        use crate::plugins::{PluginLoader, default_plugin_directories};
-        
+        use crate::plugins::{default_plugin_directories, PluginLoader};
+
         let mut loader = PluginLoader::new();
         let mut _loaded_any = false;
 
@@ -227,7 +227,11 @@ impl ToolRegistry {
             if dir.exists() {
                 match loader.load_from_directory(&dir) {
                     Ok(_) => _loaded_any = true,
-                    Err(e) => eprintln!("Warning: Failed to load plugins from {}: {}", dir.display(), e),
+                    Err(e) => eprintln!(
+                        "Warning: Failed to load plugins from {}: {}",
+                        dir.display(),
+                        e
+                    ),
                 }
             }
         }

@@ -1,34 +1,34 @@
 //! # Grok Code - AI Coding Assistant
-//! 
+//!
 //! Grok Code is a powerful CLI tool that provides a Claude-like coding assistant experience
 //! using multiple AI providers: xAI's Grok, OpenAI's GPT, or Anthropic's Claude.
-//! 
+//!
 //! ## Features
-//! 
+//!
 //! - **Multi-Provider Support**: Switch between xAI Grok, OpenAI, and Anthropic Claude
 //! - **Comprehensive Tool Set**: File operations, shell commands, code search, git integration
 //! - **Response Caching**: Intelligent caching for improved performance
 //! - **Secure Key Storage**: System keychain integration for API keys
 //! - **Safety Features**: Dry-run mode, automatic backups, confirmation prompts
-//! 
+//!
 //! ## Architecture
-//! 
+//!
 //! The crate is organized into several modules:
-//! 
+//!
 //! - [`agent`]: The main AI agent that orchestrates interactions
 //! - [`api`]: API client implementations for different providers
 //! - [`tools`]: Collection of tools the agent can use
 //! - [`cache`]: Response caching system
 //! - [`error`]: Error types and handling
 //! - [`keystore`]: Secure API key management
-//! 
+//!
 //! ## Example Usage
-//! 
+//!
 //! ```no_run
 //! use grok_code::agent::GrokAgent;
 //! use grok_code::api::ApiConfig;
 //! use std::path::PathBuf;
-//! 
+//!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = ApiConfig {
 //!     api_key: "your-api-key".to_string(),
@@ -37,7 +37,7 @@
 //!     timeout_secs: 300,
 //!     max_retries: 3,
 //! };
-//! 
+//!
 //! let mut agent = GrokAgent::new(
 //!     "xai",
 //!     config,
@@ -46,7 +46,7 @@
 //!     3,      // max_depth
 //!     false,  // no_confirm
 //! )?;
-//! 
+//!
 //! agent.process_prompt("Analyze my code", true).await;
 //! # Ok(())
 //! # }

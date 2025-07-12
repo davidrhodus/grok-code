@@ -41,7 +41,10 @@ struct Cli {
     #[arg(long, help = "Skip confirmation prompts for actions")]
     no_confirm: bool,
 
-    #[arg(long, help = "Automatically run commands without confirmation (same as --no-confirm)")]
+    #[arg(
+        long,
+        help = "Automatically run commands without confirmation (same as --no-confirm)"
+    )]
     auto_run: bool,
 
     #[arg(short, long, help = "Enable verbose output (show detailed logs)")]
@@ -366,53 +369,81 @@ async fn main() {
         );
         println!();
         println!("{}", "Optional environment variables:".bold());
-        
+
         // GitHub configuration
         let github_token_set = env::var("GITHUB_TOKEN").is_ok();
         let github_repo = env::var("GITHUB_REPO").ok();
-        println!("  GITHUB_TOKEN: {}", if github_token_set { "✅ Set".green() } else { "❌ Not set".red() });
-        println!("  GITHUB_REPO: {}", 
-                 github_repo
-                     .as_ref()
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|| "Not set".dimmed().to_string()));
-        
+        println!(
+            "  GITHUB_TOKEN: {}",
+            if github_token_set {
+                "✅ Set".green()
+            } else {
+                "❌ Not set".red()
+            }
+        );
+        println!(
+            "  GITHUB_REPO: {}",
+            github_repo
+                .as_ref()
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|| "Not set".dimmed().to_string())
+        );
+
         if github_token_set && github_repo.is_none() {
             println!("    {} GITHUB_TOKEN is set but GITHUB_REPO is not. Both are needed for GitHub integration.", "⚠️".yellow());
         }
-        
+
         // Jira configuration
         let jira_key_set = env::var("JIRA_API_KEY").is_ok();
         let jira_url = env::var("JIRA_URL").ok();
         let jira_project = env::var("JIRA_PROJECT").ok();
-        
-        println!("  JIRA_API_KEY: {}", if jira_key_set { "✅ Set".green() } else { "❌ Not set".red() });
-        println!("  JIRA_URL: {}", 
-                 jira_url
-                     .as_ref()
-                     .map(|v| {
-                         // Validate URL format
-                         if v.starts_with("https://") && v.contains("atlassian.net") {
-                             v.cyan().to_string()
-                         } else {
-                             format!("{} ({})", v.yellow(), "should be https://your-company.atlassian.net".dimmed())
-                         }
-                     })
-                     .unwrap_or_else(|| "Not set".dimmed().to_string()));
-        println!("  JIRA_PROJECT: {}", 
-                 jira_project
-                     .as_ref()
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|| "Not set".dimmed().to_string()));
-        println!("  JIRA_EMAIL: {}", 
-                 env::var("JIRA_EMAIL")
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|_| "Not set (defaults to user@email.com)".dimmed().to_string()));
-        
-        if (jira_key_set || jira_url.is_some() || jira_project.is_some()) && (!jira_key_set || jira_url.is_none() || jira_project.is_none()) {
+
+        println!(
+            "  JIRA_API_KEY: {}",
+            if jira_key_set {
+                "✅ Set".green()
+            } else {
+                "❌ Not set".red()
+            }
+        );
+        println!(
+            "  JIRA_URL: {}",
+            jira_url
+                .as_ref()
+                .map(|v| {
+                    // Validate URL format
+                    if v.starts_with("https://") && v.contains("atlassian.net") {
+                        v.cyan().to_string()
+                    } else {
+                        format!(
+                            "{} ({})",
+                            v.yellow(),
+                            "should be https://your-company.atlassian.net".dimmed()
+                        )
+                    }
+                })
+                .unwrap_or_else(|| "Not set".dimmed().to_string())
+        );
+        println!(
+            "  JIRA_PROJECT: {}",
+            jira_project
+                .as_ref()
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|| "Not set".dimmed().to_string())
+        );
+        println!(
+            "  JIRA_EMAIL: {}",
+            env::var("JIRA_EMAIL")
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|_| "Not set (defaults to user@email.com)".dimmed().to_string())
+        );
+
+        if (jira_key_set || jira_url.is_some() || jira_project.is_some())
+            && (!jira_key_set || jira_url.is_none() || jira_project.is_none())
+        {
             println!("    {} Jira integration requires JIRA_API_KEY, JIRA_URL, and JIRA_PROJECT to all be set.", "⚠️".yellow());
         }
-        
+
         // Performance tuning
         println!();
         println!("{}", "Performance tuning:".bold());
@@ -420,35 +451,55 @@ async fn main() {
             "openai" | "anthropic" => 60,
             _ => 300,
         };
-        println!("  API_TIMEOUT_SECS: {}", 
-                 env::var("API_TIMEOUT_SECS")
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|_| format!("Not set (default: {})", default_timeout).dimmed().to_string()));
-        println!("  API_MAX_RETRIES: {}", 
-                 env::var("API_MAX_RETRIES")
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|_| "Not set (default: 3)".dimmed().to_string()));
-        println!("  GROK_CACHE: {}", 
-                 env::var("GROK_CACHE")
-                     .map(|v| {
-                         if v == "true" || v == "false" {
-                             v.cyan().to_string()
-                         } else {
-                             format!("{} ({})", v.yellow(), "should be 'true' or 'false'".dimmed())
-                         }
-                     })
-                     .unwrap_or_else(|_| "Not set (default: true)".dimmed().to_string()));
-        println!("  DEBUG_API: {}", 
-                 env::var("DEBUG_API")
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|_| "Not set".dimmed().to_string()));
-        println!("  DEBUG_CACHE: {}", 
-                 env::var("DEBUG_CACHE")
-                     .map(|v| v.cyan().to_string())
-                     .unwrap_or_else(|_| "Not set".dimmed().to_string()));
-        
+        println!(
+            "  API_TIMEOUT_SECS: {}",
+            env::var("API_TIMEOUT_SECS")
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|_| format!("Not set (default: {})", default_timeout)
+                    .dimmed()
+                    .to_string())
+        );
+        println!(
+            "  API_MAX_RETRIES: {}",
+            env::var("API_MAX_RETRIES")
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|_| "Not set (default: 3)".dimmed().to_string())
+        );
+        println!(
+            "  GROK_CACHE: {}",
+            env::var("GROK_CACHE")
+                .map(|v| {
+                    if v == "true" || v == "false" {
+                        v.cyan().to_string()
+                    } else {
+                        format!(
+                            "{} ({})",
+                            v.yellow(),
+                            "should be 'true' or 'false'".dimmed()
+                        )
+                    }
+                })
+                .unwrap_or_else(|_| "Not set (default: true)".dimmed().to_string())
+        );
+        println!(
+            "  DEBUG_API: {}",
+            env::var("DEBUG_API")
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|_| "Not set".dimmed().to_string())
+        );
+        println!(
+            "  DEBUG_CACHE: {}",
+            env::var("DEBUG_CACHE")
+                .map(|v| v.cyan().to_string())
+                .unwrap_or_else(|_| "Not set".dimmed().to_string())
+        );
+
         println!();
-        println!("{} Run {} to start using grok-code!", "💡".blue(), "grok-code".green().bold());
+        println!(
+            "{} Run {} to start using grok-code!",
+            "💡".blue(),
+            "grok-code".green().bold()
+        );
         return;
     }
 
@@ -504,7 +555,7 @@ async fn main() {
         project_root,
         cli.dry_run,
         cli.max_depth,
-        cli.no_confirm || cli.auto_run,  // Use either flag
+        cli.no_confirm || cli.auto_run, // Use either flag
     ) {
         Ok(agent) => agent,
         Err(e) => {
@@ -547,7 +598,7 @@ async fn main() {
             if cli.tui {
                 // Run in TUI mode
                 println!("🖥️  Starting TUI mode...");
-                
+
                 // Initialize terminal
                 let mut terminal = match init_terminal() {
                     Ok(term) => term,
@@ -556,18 +607,21 @@ async fn main() {
                         std::process::exit(1);
                     }
                 };
-                
+
                 // Create TUI app
                 let mut tui_app = TuiApp::new();
-                
+
                 // Add initial system message
                 tui_app.add_message(&Message {
                     role: "system".to_string(),
-                    content: Some(format!("Welcome to Grok Code TUI mode! Using {} API.", provider_name)),
+                    content: Some(format!(
+                        "Welcome to Grok Code TUI mode! Using {} API.",
+                        provider_name
+                    )),
                     tool_calls: None,
                     tool_call_id: None,
                 });
-                
+
                 // Run TUI loop
                 loop {
                     match tui_app.run(&mut terminal).await {
@@ -579,15 +633,17 @@ async fn main() {
                                 tool_calls: None,
                                 tool_call_id: None,
                             });
-                            
+
                             // Process the prompt
                             let _response = agent.process_prompt(&input, true).await;
-                            
+
                             // Add assistant response to TUI
                             // TODO: Properly capture the assistant's response and tool calls
                             tui_app.add_message(&Message {
                                 role: "assistant".to_string(),
-                                content: Some("Response processed. Check terminal for details.".to_string()),
+                                content: Some(
+                                    "Response processed. Check terminal for details.".to_string(),
+                                ),
                                 tool_calls: None,
                                 tool_call_id: None,
                             });
@@ -602,12 +658,12 @@ async fn main() {
                         }
                     }
                 }
-                
+
                 // Restore terminal
                 if let Err(e) = restore_terminal(&mut terminal) {
                     eprintln!("Failed to restore terminal: {}", e);
                 }
-                
+
                 println!("Goodbye!");
             } else {
                 // Standard interactive mode

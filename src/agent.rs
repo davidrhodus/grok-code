@@ -68,7 +68,7 @@ impl GrokAgent {
             no_confirm,
             git_repo,
             response_cache: ResponseCache::new(100, 300), // 100 entries, 5 minute TTL
-            // TODO: Make cache size and TTL configurable via environment variables
+                                                          // TODO: Make cache size and TTL configurable via environment variables
         })
     }
 
@@ -254,8 +254,8 @@ impl GrokAgent {
         let max_timeout_retries = 3;
         let mut rate_limit_retries = 0;
         let max_rate_limit_retries = 5; // More retries since we handle silently
-        // TODO: Make iteration and retry limits configurable
-        // TODO: Add exponential backoff with jitter for retries
+                                        // TODO: Make iteration and retry limits configurable
+                                        // TODO: Add exponential backoff with jitter for retries
 
         // Track tool results for cache key generation
         let mut tool_results: Vec<String> = Vec::new();

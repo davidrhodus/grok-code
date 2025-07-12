@@ -75,25 +75,21 @@ impl DiffView {
 
         for hunk in &self.hunks {
             // File header
-            items.push(ListItem::new(Line::from(vec![
-                Span::styled(
-                    format!("=== {} ===", hunk.file_path),
-                    Style::default()
-                        .fg(Color::Cyan)
-                        .add_modifier(Modifier::BOLD),
-                ),
-            ])));
+            items.push(ListItem::new(Line::from(vec![Span::styled(
+                format!("=== {} ===", hunk.file_path),
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            )])));
 
             // Hunk header
-            items.push(ListItem::new(Line::from(vec![
-                Span::styled(
-                    format!(
-                        "@@ -{},{} +{},{} @@",
-                        hunk.old_start, hunk.old_count, hunk.new_start, hunk.new_count
-                    ),
-                    Style::default().fg(Color::Magenta),
+            items.push(ListItem::new(Line::from(vec![Span::styled(
+                format!(
+                    "@@ -{},{} +{},{} @@",
+                    hunk.old_start, hunk.old_count, hunk.new_start, hunk.new_count
                 ),
-            ])));
+                Style::default().fg(Color::Magenta),
+            )])));
 
             // Diff lines
             for line in &hunk.lines {
@@ -181,19 +177,13 @@ pub fn parse_unified_diff(diff_text: &str) -> Vec<DiffHunk> {
                         let old_parts: Vec<&str> = old_info.split(',').collect();
                         old_line = old_parts[0].parse().unwrap_or(1);
                         hunk.old_start = old_line;
-                        hunk.old_count = old_parts
-                            .get(1)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(1);
+                        hunk.old_count = old_parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(1);
                     }
                     if let Some(new_info) = parts[2].strip_prefix('+') {
                         let new_parts: Vec<&str> = new_info.split(',').collect();
                         new_line = new_parts[0].parse().unwrap_or(1);
                         hunk.new_start = new_line;
-                        hunk.new_count = new_parts
-                            .get(1)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(1);
+                        hunk.new_count = new_parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(1);
                     }
                 }
 
@@ -211,7 +201,10 @@ pub fn parse_unified_diff(diff_text: &str) -> Vec<DiffHunk> {
             } else if let Some(content) = line.strip_prefix('-') {
                 (DiffLineType::Removed, content)
             } else {
-                (DiffLineType::Context, line.strip_prefix(' ').unwrap_or(line))
+                (
+                    DiffLineType::Context,
+                    line.strip_prefix(' ').unwrap_or(line),
+                )
             };
 
             let (old_num, new_num) = match line_type {
@@ -249,4 +242,4 @@ pub fn parse_unified_diff(diff_text: &str) -> Vec<DiffHunk> {
     }
 
     hunks
-} 
+}
