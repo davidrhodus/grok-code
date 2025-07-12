@@ -1,0 +1,25 @@
+# rustfmt configuration for grok-code
+
+# Basic configuration (stable features only)
+edition = "2021"
+max_width = 100
+use_small_heuristics = "Default"
+
+# Imports - these are stable
+reorder_imports = true
+reorder_modules = true
+
+# Code formatting - stable features only
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+# Misc
+newline_style = "Unix"
+hard_tabs = false
+tab_spaces = 4
+
+# These would be nice but are unstable:
+# group_imports = "StdExternalCrate"
+# imports_granularity = "Crate"
+# wrap_comments = true
+# format_code_in_doc_comments = true 
